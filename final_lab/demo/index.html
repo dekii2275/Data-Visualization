@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HCMC Smart Traffic IOC - Hệ Thống Điều Hành & Mô Phỏng Giao Thông Thích Ứng</title>
+  <meta name="description" content="Trung tâm điều hành và mô phỏng giao thông thông minh TP. Hồ Chí Minh - Nền tảng tư vấn giải pháp thích ứng giải cứu điểm nghẽn đô thị.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header / Top Bar -->
+  <header id="main-header" class="ioc-header">
+    <div class="header-brand">
+      <div class="brand-badge">
+        <span class="pulsing-dot"></span>
+        <span class="brand-tag">IOC URBAN AI</span>
+      </div>
+      <div class="brand-text">
+        <h1>HCMC TRAFFIC INTELLIGENCE & DIGITAL TWIN</h1>
+        <p class="brand-sub">Đề Án Điều Hành Giao Thông Thích Ứng Thời Gian Thực | Báo Cáo Tư Vấn Sở GTVT TP.HCM</p>
+      </div>
+    </div>
+
+    <!-- Center Control Pill: Time & Peak Indicator -->
+    <div class="header-status-pill" id="header-status-pill">
+      <div class="status-indicator">
+        <span class="indicator-icon" id="peak-indicator-icon">🚦</span>
+        <div class="status-texts">
+          <span class="status-label" id="current-period-label">CAO ĐIỂM CHIỀU (17:30)</span>
+          <span class="status-detail" id="current-stress-level">Áp Lực Kẹt Xe Cực Đại: 38.2%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Actions -->
+    <div class="header-actions">
+      <div class="system-metric">
+        <span class="metric-label">CẢM BIẾN GIÁM SÁT</span>
+        <span class="metric-val" id="total-segments-badge">450 Đoạn Tuyến</span>
+      </div>
+      <button class="btn btn-primary" id="btn-open-simulation" title="Mở Bảng Điều Khiển Mô Phỏng Can Thiệp">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        Mô Phỏng Can Thiệp
+      </button>
+      <button class="btn btn-outline" id="btn-toggle-fullscreen" title="Toàn màn hình thuyết trình">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="ioc-main-grid">
+    <!-- Left Panel: Realtime KPIs & Analytics -->
+    <aside class="panel panel-left" id="panel-analytics">
+      <div class="panel-header">
+        <div class="panel-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          <h3>CHỈ SỐ TỔNG THỂ</h3>
+        </div>
+        <span class="live-pill">LIVE 24H</span>
+      </div>
+
+      <!-- KPI Grid -->
+      <div class="kpi-grid">
+        <div class="kpi-card danger" id="kpi-severe-box">
+          <div class="kpi-label">TỶ LỆ KẸT XE (LOS E-F)</div>
+          <div class="kpi-value-row">
+            <span class="kpi-val" id="kpi-severe-pct">38.2%</span>
+            <span class="kpi-delta up" id="kpi-severe-delta">▲ +14.6%</span>
+          </div>
+          <div class="kpi-progress">
+            <div class="kpi-progress-bar bg-danger" id="kpi-severe-bar" style="width: 38.2%;"></div>
+          </div>
+          <span class="kpi-note" id="kpi-severe-sub">172 / 450 đoạn rơi vào tê liệt</span>
+        </div>
+
+        <div class="kpi-card warning" id="kpi-speed-box">
+          <div class="kpi-label">VẬN TỐC TRUNG BÌNH</div>
+          <div class="kpi-value-row">
+            <span class="kpi-val" id="kpi-speed-val">14.2</span>
+            <span class="kpi-unit">km/h</span>
+          </div>
+          <div class="kpi-progress">
+            <div class="kpi-progress-bar bg-warning" id="kpi-speed-bar" style="width: 28%;"></div>
+          </div>
+          <span class="kpi-note">Tốc độ bò chậm dưới ngưỡng tối ưu</span>
+        </div>
+
+        <div class="kpi-card info">
+          <div class="kpi-label">ĐIỂM ÁP LỰC LOS (1-6)</div>
+          <div class="kpi-value-row">
+            <span class="kpi-val" id="kpi-score-val">3.85</span>
+            <span class="kpi-status-tag" id="kpi-score-tag">Cấp Đô Nguy Cấp</span>
+          </div>
+          <span class="kpi-note">Ngưỡng bão hòa công suất giao lộ</span>
+        </div>
+
+        <div class="kpi-card purple">
+          <div class="kpi-label">TỶ LỆ DỪNG CHẾT (≤ 2 km/h)</div>
+          <div class="kpi-value-row">
+            <span class="kpi-val" id="kpi-crawl-val">25.0%</span>
+            <span class="kpi-unit">thời gian</span>
+          </div>
+          <span class="kpi-note">Phương tiện chờ quá 2 chu kỳ đèn</span>
+        </div>
+      </div>
+
+      <!-- LOS Distribution Breakdown -->
+      <div class="panel-section">
+        <div class="section-title">Cơ Cấu Cấp Độ Phục Vụ (LOS Profile)</div>
+        <div class="los-stacked-bar">
+          <div class="los-segment bg-los-a" id="bar-los-a" style="width: 35%;" title="LOS A: Thông suốt"></div>
+          <div class="los-segment bg-los-b" id="bar-los-b" style="width: 15%;" title="LOS B: Ổn định"></div>
+          <div class="los-segment bg-los-c" id="bar-los-c" style="width: 12%;" title="LOS C: Chấp nhận"></div>
+          <div class="los-segment bg-los-d" id="bar-los-d" style="width: 10%;" title="LOS D: Tiệm cận giới hạn"></div>
+          <div class="los-segment bg-los-e" id="bar-los-e" style="width: 14%;" title="LOS E: Kẹt xe"></div>
+          <div class="los-segment bg-los-f" id="bar-los-f" style="width: 14%;" title="LOS F: Tê liệt hoàn toàn"></div>
+        </div>
+        <div class="los-legend-grid">
+          <div class="legend-item"><span class="dot bg-los-a"></span>A (<span id="pct-los-a">35%</span>)</div>
+          <div class="legend-item"><span class="dot bg-los-b"></span>B (<span id="pct-los-b">15%</span>)</div>
+          <div class="legend-item"><span class="dot bg-los-c"></span>C (<span id="pct-los-c">12%</span>)</div>
+          <div class="legend-item"><span class="dot bg-los-d"></span>D (<span id="pct-los-d">10%</span>)</div>
+          <div class="legend-item"><span class="dot bg-los-e"></span>E (<span id="pct-los-e">14%</span>)</div>
+          <div class="legend-item"><span class="dot bg-los-f"></span>F (<span id="pct-los-f">14%</span>)</div>
+        </div>
+      </div>
+
+      <!-- Quick Jump to Critical Hotspots -->
+      <div class="panel-section">
+        <div class="section-title">Điểm Nóng Trọng Điểm Cần Can Thiệp</div>
+        <div class="hotspots-list" id="hotspots-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center: Interactive Map Container -->
+    <section class="panel-center">
+      <div id="traffic-map" class="map-view"></div>
+
+      <!-- Map Floating Overlay Controls -->
+      <div class="map-floating-overlay top-left">
+        <div class="overlay-glass-card">
+          <div class="filter-row">
+            <label for="street-type-filter">Loại tuyến:</label>
+            <select id="street-type-filter" class="form-select">
+              <option value="all">Tất cả tuyến đường</option>
+              <option value="primary">Đường Trục Cấp 1 (Primary)</option>
+              <option value="tertiary">Đường Nhánh / Dân Cư (Tertiary)</option>
+              <option value="secondary">Đường Thứ Cấp (Secondary)</option>
+              <option value="trunk">Đường Trục Lớn (Trunk / QL1)</option>
+            </select>
+          </div>
+          <div class="filter-row">
+            <label><input type="checkbox" id="chk-show-hotspots" checked> Hiển thị Điểm Nóng Trọng Yếu</label>
+          </div>
+          <div class="filter-row">
+            <label><input type="checkbox" id="chk-only-severe"> Chỉ hiện các đoạn đang kẹt xe (LOS E-F)</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map Floating Legend -->
+      <div class="map-floating-overlay bottom-right">
+        <div class="overlay-glass-card legend-box">
+          <div class="legend-title">CẤP PHỤC VỤ (LOS)</div>
+          <div class="legend-row"><span class="line-sample bg-los-a"></span> LOS A - Thông suốt (V > 40 km/h)</div>
+          <div class="legend-row"><span class="line-sample bg-los-b"></span> LOS B - Tương đối thông thoáng</div>
+          <div class="legend-row"><span class="line-sample bg-los-c"></span> LOS C - Dòng xe chậm vừa</div>
+          <div class="legend-row"><span class="line-sample bg-los-d"></span> LOS D - Mật độ tiệm cận bão hòa</div>
+          <div class="legend-row"><span class="line-sample bg-los-e"></span> LOS E - Ùn tắc nghiêm trọng</div>
+          <div class="legend-row"><span class="line-sample bg-los-f"></span> LOS F - Tê liệt hoàn toàn (Gridlock)</div>
+        </div>
+      </div>
+
+      <!-- Segment Detail Popover Modal -->
+      <div class="segment-modal" id="segment-modal" style="display: none;">
+        <button class="modal-close" id="btn-close-modal">✕</button>
+        <div class="modal-header">
+          <span class="badge badge-type" id="modal-street-type">Primary</span>
+          <h4 id="modal-street-name">Đường Lý Thường Kiệt</h4>
+        </div>
+        <div class="modal-body">
+          <div class="metric-row">
+            <span>Chiều dài phân đoạn:</span>
+            <strong id="modal-length">185 m</strong>
+          </div>
+          <div class="metric-row">
+            <span>Mức LOS hiện tại:</span>
+            <strong id="modal-current-los" class="badge-los bg-los-f">LOS F (Tê Liệt)</strong>
+          </div>
+          <div class="metric-row">
+            <span>Tần suất kẹt xe lịch sử:</span>
+            <strong id="modal-severe-rate">68.4% số ca quan sát</strong>
+          </div>
+          <div class="metric-row">
+            <span>Vận tốc ước tính:</span>
+            <strong id="modal-speed">8.5 km/h</strong>
+          </div>
+          <div class="modal-callout">
+            <strong>Đánh giá Tư Vấn:</strong> Thuộc cụm nghẽn giao lộ Bách Khoa - BV 115. Cần bổ sung làn rẽ cưỡng bức và tín hiệu đèn thích ứng.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Panel: What-If Policy Simulation Studio -->
+    <aside class="panel panel-right" id="panel-simulation">
+      <div class="panel-header">
+        <div class="panel-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          <h3>MÔ PHỎNG GIẢI PHÁP CAN THIỆP</h3>
+        </div>
+        <span class="badge-role">TƯ VẤN SỞ GTVT</span>
+      </div>
+
+      <div class="sim-intro">
+        Thử nghiệm các gói chính sách điều hành giao thông thông minh để chứng minh hiệu quả giảm ùn tắc trước khi phê duyệt ngân sách.
+      </div>
+
+      <!-- Policy Toggles -->
+      <div class="policy-controls">
+        <div class="policy-card">
+          <div class="policy-info">
+            <div class="policy-name">1. Đèn Tín Hiệu AI Thích Ứng (Adaptive Signal)</div>
+            <div class="policy-desc">Tự động tăng pha đèn xanh theo độ dài hàng đợi cảm biến tại 8 giao lộ chính Quận 10.</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-sim-adaptive" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="policy-card">
+          <div class="policy-info">
+            <div class="policy-name">2. Phân Luồng Động 1 Chiều Giờ Cao Điểm</div>
+            <div class="policy-desc">Thiết lập làn sóng xanh (Tidal Flow) trên trục Lý Thường Kiệt và Tô Hiến Thành từ 16h30-19h30.</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-sim-tidal" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="policy-card">
+          <div class="policy-info">
+            <div class="policy-name">3. Cấm Ô Tô Rẽ Trái Cục Bộ (No-Left-Turn)</div>
+            <div class="policy-desc">Cấm rẽ trái vào giờ tan tầm tại ngã tư Lý Thường Kiệt - 3 Tháng 2, chuyển hướng đi vòng.</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-sim-noleft">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Simulation Comparison Results -->
+      <div class="sim-results-card">
+        <div class="sim-card-header">
+          <span class="sim-badge">KẾT QUẢ DỰ BÁO HIỆU QUẢ CAN THIỆP</span>
+        </div>
+
+        <div class="comparison-row">
+          <div class="comp-col before">
+            <span class="comp-lbl">HIỆN TRẠNG</span>
+            <span class="comp-val danger" id="sim-before-severe">38.2%</span>
+            <span class="comp-sub">Tỷ lệ kẹt xe</span>
+          </div>
+          <div class="comp-arrow">➔</div>
+          <div class="comp-col after">
+            <span class="comp-lbl">SAU CAN THIỆP</span>
+            <span class="comp-val success" id="sim-after-severe">16.4%</span>
+            <span class="comp-sub">Tỷ lệ kẹt xe</span>
+          </div>
+        </div>
+
+        <div class="sim-delta-badge" id="sim-delta-badge">
+          GIẢM 57.1% TẮC NGHẼN GIỜ CAO ĐIỂM
+        </div>
+
+        <div class="sim-stat-table">
+          <div class="stat-line">
+            <span>Tốc độ lưu thông trung bình:</span>
+            <strong class="text-success" id="sim-speed-change">14.2 km/h ➔ 23.5 km/h (+65%)</strong>
+          </div>
+          <div class="stat-line">
+            <span>Thời gian tiết kiệm mỗi chuyến:</span>
+            <strong class="text-success" id="sim-time-saved">~18.4 phút / xe</strong>
+          </div>
+          <div class="stat-line">
+            <span>Ước tính thiệt hại xã hội tránh được:</span>
+            <strong class="text-success">~1.2 tỷ VNĐ / ngày</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Call to Action Box for Consultation -->
+      <div class="cta-box">
+        <h4>ĐỀ XUẤT HÀNH ĐỘNG CỦA CHUYÊN GIA:</h4>
+        <p>Phê duyệt gói thí điểm 06 tháng tại Cụm Quận 10 - Tân Bình với kinh phí đầu tư cảm biến và bộ điều khiển thích ứng 3.2 tỷ VNĐ. Tỷ lệ hoàn vốn xã hội (Social ROI) đạt sau 45 ngày vận hành.</p>
+        <button class="btn btn-success btn-full" id="btn-export-proposal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Xuất Tờ Trình Đề Án Thí Điểm
+        </button>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Bottom Timeline & Playback Controller -->
+  <footer class="ioc-timeline-footer" id="timeline-footer">
+    <div class="timeline-controls">
+      <button class="btn-play" id="btn-play-pause" title="Tự động phát chu kỳ 24 giờ">
+        <svg id="play-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+
+      <div class="time-display">
+        <span class="time-clock" id="clock-display">17:30</span>
+        <span class="time-daytype" id="daytype-display">NGÀY ĐI LÀM (THỨ 2 - THỨ 6)</span>
+      </div>
+    </div>
+
+    <!-- Timeline Slider with hour markers -->
+    <div class="slider-wrapper">
+      <div class="timeline-peak-bands">
+        <div class="band band-night" style="left: 0%; width: 25%;">Đêm (0h-6h)</div>
+        <div class="band band-morning-peak" style="left: 27%; width: 10.5%;">Cao Điểm Sáng</div>
+        <div class="band band-noon" style="left: 37.5%; width: 31.25%;">Trưa / Chiều</div>
+        <div class="band band-evening-peak" style="left: 68.75%; width: 12.5%;">Cao Điểm Chiều (Tối đa)</div>
+        <div class="band band-late" style="left: 81.25%; width: 18.75%;">Tối muộn</div>
+      </div>
+      <input type="range" id="timeline-slider" min="0" max="23.5" step="0.5" value="17.5" class="time-slider">
+      <div class="timeline-ticks">
+        <span>00h</span>
+        <span>03h</span>
+        <span>06h</span>
+        <span class="tick-peak">07h30</span>
+        <span>09h</span>
+        <span>12h</span>
+        <span>15h</span>
+        <span class="tick-peak">17h30</span>
+        <span>19h</span>
+        <span>21h</span>
+        <span>23h</span>
+      </div>
+    </div>
+
+    <!-- Play Speed Select -->
+    <div class="speed-controls">
+      <span class="speed-lbl">TỐC ĐỘ:</span>
+      <button class="btn-speed active" data-speed="1">1x</button>
+      <button class="btn-speed" data-speed="2">2x</button>
+      <button class="btn-speed" data-speed="4">4x</button>
+    </div>
+  </footer>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <!-- App JS -->
+  <script src="app.js"></script>
+</body>
+</html>

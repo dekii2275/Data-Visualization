@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slide Thuyết Trình: Đề Án Điều Hành Giao Thông Thích Ứng TP.HCM</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: rgba(22, 30, 49, 0.85);
+      --accent-cyan: #00e5ff;
+      --accent-blue: #3b82f6;
+      --accent-red: #ef4444;
+      --accent-gold: #f59e0b;
+      --accent-green: #10b981;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --border: rgba(255, 255, 255, 0.12);
+      --font-main: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Presentation Header */
+    .slide-header {
+      height: 54px;
+      background: rgba(13, 18, 31, 0.95);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      font-size: 13px;
+      z-index: 100;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+    }
+    .badge-pres {
+      background: rgba(0, 229, 255, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .btn-toggle-notes {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 5px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-toggle-notes:hover { background: rgba(0, 229, 255, 0.2); border-color: var(--accent-cyan); }
+    .btn-toggle-notes.active { background: var(--accent-cyan); color: #000; font-weight: 700; }
+
+    /* Slide Stage Container */
+    .stage-container {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 1180px;
+      height: 100%;
+      max-height: 680px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 50px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(20px);
+      flex-direction: column;
+      justify-content: space-between;
+      animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .slide.active { display: flex; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: scale(0.97) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Slide Elements */
+    .slide-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .slide-title {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(90deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+    }
+    .slide-content {
+      flex: 1;
+      display: flex;
+      gap: 30px;
+      align-items: center;
+      overflow-y: auto;
+    }
+    .col-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .col-media {
+      flex: 1.2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .col-media img {
+      max-width: 100%;
+      max-height: 380px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .highlight-card {
+      background: rgba(255, 255, 255, 0.04);
+      border-left: 4px solid var(--accent-cyan);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+    }
+    .highlight-card.red { border-left-color: var(--accent-red); background: rgba(239, 68, 68, 0.08); }
+    .highlight-card.gold { border-left-color: var(--accent-gold); background: rgba(245, 158, 11, 0.08); }
+    .highlight-card.green { border-left-color: var(--accent-green); background: rgba(16, 185, 129, 0.08); }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 10px;
+    }
+    .stat-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      padding: 14px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .stat-num {
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--accent-cyan);
+    }
+    .stat-num.red { color: var(--accent-red); }
+    .stat-num.gold { color: var(--accent-gold); }
+    .stat-lbl {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Speaker Notes Drawer */
+    .speaker-notes-drawer {
+      display: none;
+      background: #111827;
+      border-top: 2px solid var(--accent-gold);
+      padding: 16px 30px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #fef3c7;
+      box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+      z-index: 1000;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    .speaker-notes-drawer.open { display: block; }
+    .notes-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-gold);
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    /* Bottom Controller */
+    .slide-footer {
+      height: 56px;
+      background: rgba(13, 18, 31, 0.95);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-nav {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: white;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+    .btn-nav:hover { background: var(--accent-cyan); color: black; }
+    .slide-progress {
+      color: var(--accent-cyan);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <header class="slide-header">
+    <div class="header-left">
+      <span class="badge-pres">DOT HCMC IOC DECK</span>
+      <span>Đề Án Điều Hành Giao Thông Thích Ứng TP.HCM</span>
+    </div>
+    <div class="header-right">
+      <button class="btn-toggle-notes" id="btn-toggle-notes" title="Bật/Tắt Lời thoại Diễn giả">
+        🎙️ Lời Thoại Diễn Giả (Speaker Notes)
+      </button>
+      <button class="btn-toggle-notes" id="btn-fullscreen">⛶ Toàn màn hình</button>
+    </div>
+  </header>
+
+  <!-- Slide Stage -->
+  <main class="stage-container">
+    <!-- SLIDE 1: COVER -->
+    <div class="slide active" data-notes="Kính thưa Ban Giám đốc Sở GTVT TP.HCM và quý vị trong Hội đồng! Tôi đứng ở đây hôm nay với tư cách là chuyên gia tư vấn trưởng về Đô thị Thông minh. Chúng ta đều biết TP.HCM đang mất hàng tỷ USD mỗi năm vì kẹt xe. Hôm nay, tôi xin trình bày một bản phân tích từ 33.441 mẫu dữ liệu thực tế và đề xuất kế hoạch hành động khả thi ngay lập tức để giải cứu điểm nghẽn giao thông lớn nhất thành phố.">
+      <div>
+        <div class="slide-badge">HỒ SƠ BÁO CÁO TƯ VẤN CHIẾN LƯỢC • DOT HCMC</div>
+        <h1 class="slide-title">ĐỀ ÁN ĐIỀU HÀNH GIAO THÔNG THÍCH ỨNG THỜI GIAN THỰC</h1>
+      </div>
+      <div class="slide-content" style="flex-direction: column; justify-content: center; text-align: center; gap: 20px;">
+        <h2 style="font-size: 22px; color: var(--accent-cyan); font-weight: 600;">Ứng Dụng Dữ Liệu Lớn & AI Giải Cứu Điểm Nghẽn Trọng Điểm TP. Hồ Chí Minh</h2>
+        <p style="color: var(--text-muted); max-width: 700px; margin: 0 auto;">Đóng vai trò: Chuyên Gia Cao Cấp về Phân Tích Dữ Liệu & Quy Hoạch Giao Thông Đô Thị<br/>Báo cáo trình bày trước: Ban Giám Đốc Sở Giao Thông Vận Tải TP.HCM</p>
+        
+        <div class="stat-row" style="max-width: 800px; width: 100%; margin: 20px auto 0;">
+          <div class="stat-item">
+            <div class="stat-num">33.441</div>
+            <div class="stat-lbl">Mẫu Quan Sát Giám Sát</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num red">38.2%</div>
+            <div class="stat-lbl">Tỷ Lệ Kẹt Xe Giờ Cao Điểm</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num gold">45 Ngày</div>
+            <div class="stat-lbl">Hoàn Vốn Đầu Tư Xã Hội</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size: 11px; color: var(--text-muted); text-align: center;">Môn học: Trực quan hóa Dữ liệu (Data Visualization) • Tháng 10/2026</div>
+    </div>
+
+    <!-- SLIDE 2: THE HOOK -->
+    <div class="slide" data-notes="Thưa quý vị, con số 25% xe dừng chết trên đường không chỉ là số liệu khô khan, mà là sự kiệt sức của hàng triệu người dân mỗi ngày. Các giải pháp mở đường truyền thống tốn hàng nghìn tỷ và mất nhiều năm. Nhưng dữ liệu chứng minh rằng: Chỉ cần tối ưu hóa chu kỳ đèn tín hiệu thích ứng, chúng ta có thể giải phóng ngay 57% lượng tắc nghẽn.">
+      <div>
+        <div class="slide-badge">01 • THỰC TRẠNG KHẨN CẤP</div>
+        <h2 class="slide-title">Những Con Số Gây Sốc Về Dòng Xe Đô Thị TP.HCM</h2>
+      </div>
+      <div class="slide-content">
+        <div class="col-text">
+          <div class="highlight-card red">
+            <strong style="color: #ff6b6b; font-size: 17px;">25,0% Thời Gian Phương Tiện Di Chuyển &le; 2 km/h</strong>
+            <p style="margin-top: 4px; font-size: 13.5px; color: var(--text-muted);">Trung bình một phần tư thời gian lưu thông trên đường, xe máy và ô tô phải dừng chết tại chỗ hoặc nhích từng mét một qua các ngã tư.</p>
+          </div>
+          <div class="highlight-card gold">
+            <strong style="color: #fbbf24; font-size: 17px;">Vận Tốc Trung Vị Đô Thị Chỉ Đạt 17,0 km/h</strong>
+            <p style="margin-top: 4px; font-size: 13.5px; color: var(--text-muted);">Thấp hơn 57,5% so với vận tốc thiết kế tiêu chuẩn (40 km/h), gây lãng phí hàng nghìn tỷ đồng chi phí nhiên liệu và giờ công lao động mỗi năm.</p>
+          </div>
+          <div class="highlight-card red">
+            <strong style="color: #ff6b6b; font-size: 17px;">Đỉnh Cao Điểm Chiều Đạt 38,2% Tuyến Đường Tê Liệt</strong>
+            <p style="margin-top: 4px; font-size: 13.5px; color: var(--text-muted);">Gấp 3,8 lần so với ban đêm, áp lực giao thông tập trung cực đoan tại các trục xuyên tâm.</p>
+          </div>
+        </div>
+        <div class="col-media">
+          <img src="assets/chart6_velocity_dynamics.png" alt="Velocity Dynamics">
+        </div>
+      </div>
+      <div style="font-size: 11px; color: var(--text-muted);">Nguồn: Tổng hợp từ 90.938 mẫu vận tốc cảm biến tức thời (segment_status.csv).</div>
+    </div>
+
+    <!-- SLIDE 3: PILLAR 1 - LOS DISTRIBUTION -->
+    <div class="slide" data-notes="Biểu đồ bên phải cho thấy hiện tượng phân cực rất lớn. 23,6% số ca nằm ở mức E và F (tắc nghẽn nghiêm trọng). Điều này chứng minh hệ thống giao thông TP.HCM có biên độ dự phòng cực kỳ mỏng manh: chỉ cần một sự cố nhỏ là toàn bộ dòng xe lập tức chuyển từ C sang F.">
+      <div>
+        <div class="slide-badge">02 • BẰNG CHỨNG DỮ LIỆU ĐỊNH LƯỢNG</div>
+        <h2 class="slide-title">Trụ Cột 1: 23,6% Mạng Lưới Rơi Vào Kẹt Xe Nghiêm Trọng</h2>
+      </div>
+      <div class="slide-content">
+        <div class="col-text">
+          <p>Phân tích 33.441 mẫu quan sát chỉ ra cấu trúc phân bổ cấp độ phục vụ giao thông (LOS):</p>
+          <div class="highlight-card">
+            <strong>LOS A (Free-flow): 39,7% (13.278 mẫu)</strong><br/>
+            <span style="font-size: 13px; color: var(--text-muted);">Tập trung vào khung giờ đêm, rạng sáng và các đường vành đai lớn.</span>
+          </div>
+          <div class="highlight-card gold">
+            <strong>LOS B - C - D (Ổn định & Chớm chậm): 36,7%</strong><br/>
+            <span style="font-size: 13px; color: var(--text-muted);">Dòng xe tiệm cận ngưỡng công suất tối đa của hạ tầng.</span>
+          </div>
+          <div class="highlight-card red">
+            <strong>LOS E & F (Ùn tắc & Tê liệt): 23,6% (7.917 mẫu)</strong><br/>
+            <span style="font-size: 13px; color: var(--text-muted);">Cứ 4 lượt di chuyển thì có gần 1 lượt rơi vào khủng hoảng stop-and-go.</span>
+          </div>
+        </div>
+        <div class="col-media">
+          <img src="assets/chart1_los_distribution.png" alt="LOS Distribution">
+        </div>
+      </div>
+      <div style="font-size: 11px; color: var(--text-muted);">Tiêu chuẩn đánh giá theo Highway Capacity Manual (HCM).</div>
+    </div>
+
+    <!-- SLIDE 4: PILLAR 2 - TEMPORAL PEAKS -->
+    <div class="slide" data-notes="Quan sát biểu đồ diện tích 24 giờ, quý vị thấy hai đợt sóng màu đỏ và tím bùng phát dữ dội vào đầu và cuối ngày làm việc. Đặc biệt, đỉnh cao điểm chiều kéo dài tới 3 tiếng đồng hồ liên tục, là thời điểm công suất mạng lưới bị 'vắt kiệt' nghiêm trọng nhất.">
+      <div>
+        <div class="slide-badge">03 • ĐỘNG HỌC THỜI GIAN</div>
+        <h2 class="slide-title">Trụ Cột 2: Hai Đỉnh Cao Điểm Khắc Nghiệt Trong Ngày</h2>
+      </div>
+      <div class="slide-content">
+        <div class="col-text">
+          <div class="highlight-card red">
+            <strong>Đỉnh Cao Điểm Chiều (16h30 – 19h30): 38,2% Kẹt Xe</strong>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Thời điểm tan sở của cơ quan, doanh nghiệp trùng khớp với học sinh ra về đồng loạt.</p>
+          </div>
+          <div class="highlight-card gold">
+            <strong>Đỉnh Cao Điểm Sáng (06h30 – 09h00): 30,8% Kẹt Xe</strong>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Dòng xe hướng tâm dồn dập vào khu vực trung tâm Quận 1, Quận 3, Quận 10.</p>
+          </div>
+          <div class="highlight-card green">
+            <strong>Đêm & Sáng Sớm (00h00 – 05h30): Thông Suốt Tuyệt Đối</strong>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">LOS A chiếm trên 75%, cho thấy năng lực hạ tầng về đêm còn dư thừa rất lớn.</p>
+          </div>
+        </div>
+        <div class="col-media">
+          <img src="assets/chart2_temporal_dynamics.png" alt="Temporal Dynamics">
+        </div>
+      </div>
+      <div style="font-size: 11px; color: var(--text-muted);">Chỉ số áp lực giao thông (LOS Score) tăng từ 1.5 lên 3.85 vào giờ tan tầm.</div>
+    </div>
+
+    <!-- SLIDE 5: HEATMAP WEEKDAY -->
+    <div class="slide" data-notes="Bản đồ nhiệt này chứng minh một sai lầm rất lớn trong điều hành hiện nay: Nhiều giao lộ vẫn đang chạy chung một chu kỳ đèn cho cả thứ 2 lẫn chủ nhật. Cuối tuần, nhu cầu di chuyển rải đều vào ban ngày, trong khi ngày thường tập trung đột biến vào giờ tan sở.">
+      <div>
+        <div class="slide-badge">04 • SO SÁNH LỊCH TUẦN</div>
+        <h2 class="slide-title">Bản Đồ Nhiệt Khung Giờ × Ngày Trong Tuần</h2>
+      </div>
+      <div class="slide-content">
+        <div class="col-text">
+          <p><strong>Sự khác biệt cốt lõi giữa Ngày làm việc và Cuối tuần:</strong></p>
+          <ul style="padding-left: 20px; font-size: 14px; color: var(--text-muted); display: flex; flex-direction: column; gap: 8px;">
+            <li><strong>Thứ 2 đến Thứ 6:</strong> Hai vệt nhiệt đỏ rực tại 7h-8h sáng và 17h-18h30 chiều.</li>
+            <li><strong>Thứ 7 & Chủ Nhật:</strong> Áp lực phân tán đều từ 10h sáng đến 21h tối, không có đỉnh nhọn đột ngột buổi sáng.</li>
+          </ul>
+          <div class="highlight-card" style="margin-top: 10px;">
+            <strong style="color: var(--accent-cyan);">Khuyến nghị chuyên gia:</strong> Bắt buộc phải tách biệt cấu hình chu kỳ đèn giữa ngày thường và cuối tuần thay vì sử dụng cấu hình chung.
+          </div>
+        </div>
+        <div class="col-media">
+          <img src="assets/chart3_weekday_hour_heatmap.png" alt="Weekday Hour Heatmap">
+        </div>
+      </div>
+      <div style="font-size: 11px; color: var(--text-muted);">Dữ liệu phân tách theo 7 ngày trong tuần và 24 khung giờ.</div>
+    </div>
+
+    <!-- SLIDE 6: ROAD HIERARCHY -->
+    <div class="slide" data-notes="Dữ liệu chỉ ra một nghịch lý thú vị: Không phải cứ đường lớn là kẹt. Quốc lộ 1 hay Xa Lộ Hà Nội thông thoáng tới gần 70% nhờ phân làn rạch ròi. Thủ phạm chính kẹt xe lại là các đường cấp 1 và đường nhánh đô thị, nơi lưu lượng khổng lồ bị dồn vào các nút giao thắt cổ chai.">
+      <div>
+        <div class="slide-badge">05 • CẤU TRÚC MẠNG LƯỚI</div>
+        <h2 class="slide-title">Trụ Cột 3: Nghịch Lý Phân Cấp Loại Tuyến Đường</h2>
+      </div>
+      <div class="slide-content">
+        <div class="col-text">
+          <div class="highlight-card green">
+            <strong>Đường Trục Chính (`trunk` như QL1, Xa Lộ Hà Nội):</strong>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Tỷ lệ thông thoáng (LOS A) đạt tới <strong>68,4%</strong> nhờ mặt đường rộng và dải phân cách tách biệt làn ô tô/xe máy.</p>
+          </div>
+          <div class="highlight-card red">
+            <strong>Đường Cấp 1 (`primary`) & Đường Nhánh (`tertiary`):</strong>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Tỷ lệ kẹt xe nghiêm trọng vượt mức <strong>26,5%</strong> do mật độ ngã ba, ngã tư dày đặc và các dòng xe rẽ trái xung đột liên tục.</p>
+          </div>
+        </div>
+        <div class="col-media">
+          <img src="assets/chart4_road_hierarchy.png" alt="Road Hierarchy">
+        </div>
+      </div>
+      <div style="font-size: 11px; color: var(--text-muted);">Phân tích dựa trên phân loại OpenStreetMap và segments.csv.</div>
+    </div>
+
+    <!-- SLIDE 7: HOTSPOTS -->
+    <div class="slide" data-notes="Khi xếp hạng các tuyến đường kẹt xe nhất TP.HCM, toàn bộ các vị trí đầu bảng đều quy tụ về một khu vực: Cụm tam giác Lý Thường Kiệt - Tô Hiến Thành - 3 Tháng 2. Đây chính là 'tâm chấn' làm tê liệt cả một vùng đô thị Quận 10 và Tân Bình.">
+      <div>
+        <div class="slide-badge">06 • KHÔNG GIAN ĐỊA LÝ</div>
+        <h2 class="slide-title">Trụ Cột 4: Tâm Chấn Kẹt Xe Cụm Quận 10 – Tân Bình</h2>
+      </div>
+      <div class="slide-content">
+        <div class="col-text">
+          <p><strong>Top Tuyến Đường Có Số Lần Ghi Nhận Kẹt Xe Cao Nhất:</strong></p>
+          <div class="highlight-card red">
+            <strong>1. Trục Lý Thường Kiệt: > 870 ca ghi nhận LOS E & F</strong><br/>
+            <span style="font-size: 13px; color: var(--text-muted);">Điểm giao cắt với ĐH Bách Khoa, BV Chợ Rẫy, BV 115.</span>
+          </div>
+          <div class="highlight-card red">
+            <strong>2. Các trục liên hoàn: Tô Hiến Thành, 3 Tháng 2, Hoàng Văn Thụ</strong><br/>
+            <span style="font-size: 13px; color: var(--text-muted);">Tạo thành tam giác thắt cổ chai làm tê liệt toàn bộ khu vực.</span>
+          </div>
+        </div>
+        <div class="col-media">
+          <img src="assets/chart5_top_bottlenecks.png" alt="Top Bottlenecks">
+        </div>
+      </div>
+      <div style="font-size: 11px; color: var(--text-muted);">Độ dài phân đoạn đường trung bình tại cụm này: 185m - 320m.</div>
+    </div>
+
+    <!-- SLIDE 8: 3-STAGE ACTION PLAN -->
+    <div class="slide" data-notes="Chúng tôi không đề xuất một giải pháp viển vông. Lộ trình 3 giai đoạn này đi từ can thiệp 'chi phí thấp - hiệu quả ngay' bằng phần mềm và cảm biến, sau đó mới nhân rộng ra quy mô toàn thành phố.">
+      <div>
+        <div class="slide-badge">07 • CHIẾN LƯỢC HÀNH ĐỘNG</div>
+        <h2 class="slide-title">Kế Hoạch Hành Động Toàn Diện 3 Giai Đoạn</h2>
+      </div>
+      <div class="slide-content">
+        <div class="col-text" style="gap: 16px;">
+          <div class="highlight-card">
+            <strong style="color: var(--accent-cyan); font-size: 16px;">GIAI ĐOẠN 1: NGẮN HẠN (0 – 6 THÁNG)</strong>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">• Thí điểm Hệ thống Đèn Tín hiệu AI Thích ứng tại 8 giao lộ Quận 10.<br/>• Áp dụng Phân luồng động 1 chiều giờ cao điểm trên trục Lý Thường Kiệt.<br/>• Cấm rẽ trái giờ cao điểm tại ngã tư Lý Thường Kiệt – 3 Tháng 2.</p>
+          </div>
+          <div class="highlight-card gold">
+            <strong style="color: var(--accent-gold); font-size: 16px;">GIAI ĐOẠN 2: TRUNG HẠN (6 – 18 THÁNG)</strong>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">• Kết nối 35 nút giao vào Trung tâm Điều hành Đô thị Thông minh (IOC).<br/>• Camera AI tự động cảnh báo tắc nghẽn sớm trước 15 phút.</p>
+          </div>
+          <div class="highlight-card green">
+            <strong style="color: var(--accent-green); font-size: 16px;">GIAI ĐOẠN 3: DÀI HẠN (18 – 36 THÁNG)</strong>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">• Triển khai Mô hình Đồ thị Không-Thời gian (STGNN) dự báo mạng lưới.<br/>• Hoàn thiện Bản sao Số (Digital Twin) toàn thành phố.</p>
+          </div>
+        </div>
+        <div class="col-media">
+          <div style="background: rgba(0, 229, 255, 0.05); border: 1px dashed var(--accent-cyan); border-radius: 12px; padding: 24px; text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 10px;">🚦 ➔ 🤖 ➔ 🌐</div>
+            <strong style="color: var(--accent-cyan); font-size: 16px;">CHUYỂN ĐỔI SỐ GIAO THÔNG</strong>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">Từ điều khiển thủ công cố định sang Hệ thống Điều hành Đô thị Tự Thích Ứng theo thời gian thực.</p>
+          </div>
+        </div>
+      </div>
+      <div style="font-size: 11px; color: var(--text-muted);">Khung kế hoạch hành động theo chuẩn Smart Mobility của World Bank.</div>
+    </div>
+
+    <!-- SLIDE 9: SIMULATION RESULTS -->
+    <div class="slide" data-notes="Hệ thống mô phỏng Digital Twin của chúng tôi dự báo: Khi tích hợp đèn tín hiệu thích ứng và phân luồng động, tỷ lệ kẹt xe giờ cao điểm sẽ giảm hơn một nửa, đưa vận tốc hành trình từ 14 km/h lên gần 24 km/h.">
+      <div>
+        <div class="slide-badge">08 • DỰ BÁO HIỆU QUẢ CAN THIỆP</div>
+        <h2 class="slide-title">Mô Phỏng Tác Động Các Kịch Bản Chính Sách</h2>
+      </div>
+      <div class="slide-content">
+        <div class="col-text">
+          <div class="highlight-card red">
+            <strong>Hiện Trạng (Chưa can thiệp):</strong>
+            <p style="font-size: 13px; color: var(--text-muted);">Tỷ lệ kẹt xe: <strong>38,2%</strong> | Vận tốc: <strong>14,2 km/h</strong></p>
+          </div>
+          <div class="highlight-card green">
+            <strong style="color: var(--accent-green); font-size: 16px;">Kịch Bản Tích Hợp Đầy Đủ (Đề xuất):</strong>
+            <p style="font-size: 13.5px; color: #ffffff; margin-top: 4px;">
+              • Tỷ lệ kẹt xe giảm xuống còn <strong>14,1% (Giảm 57,1%)</strong>.<br/>
+              • Vận tốc trung bình tăng lên <strong>27,8 km/h (+95,8%)</strong>.<br/>
+              • Tiết kiệm trung bình <strong>18,4 phút / lượt di chuyển</strong>.
+            </p>
+          </div>
+        </div>
+        <div class="col-media">
+          <img src="assets/chart7_simulation_impact.png" alt="Simulation Impact">
+        </div>
+      </div>
+      <div style="font-size: 11px; color: var(--text-muted);">Mô hình thuật toán mô phỏng dòng xe tích hợp trong hệ thống IOC.</div>
+    </div>
+
+    <!-- SLIDE 10: SOCIAL ROI -->
+    <div class="slide" data-notes="3,2 tỷ VNĐ là con số rất khiêm tốn so với hàng trăm tỷ xây cầu vượt. Nhưng hiệu quả xã hội thu về lên tới 1,2 tỷ VNĐ mỗi ngày. Chỉ cần 45 ngày là toàn bộ chi phí đầu tư ban đầu đã được hoàn trả lại cho xã hội.">
+      <div>
+        <div class="slide-badge">09 • BÀI TOÁN KINH TẾ & ROI</div>
+        <h2 class="slide-title">Hiệu Quả Hoàn Vốn Xã Hội (Social ROI) Vượt Trội</h2>
+      </div>
+      <div class="slide-content">
+        <div class="col-text">
+          <div class="stat-row" style="grid-template-columns: 1fr 1fr;">
+            <div class="stat-item">
+              <div class="stat-num gold">3,2 Tỷ VNĐ</div>
+              <div class="stat-lbl">Ngân Sách Thí Điểm 06 Tháng</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-num green">1,2 Tỷ / Ngày</div>
+              <div class="stat-lbl">Tổn Thất Xã Hội Tránh Được</div>
+            </div>
+          </div>
+          <div class="highlight-card green" style="margin-top: 10px;">
+            <strong style="color: var(--accent-green); font-size: 16px;">THỜI GIAN HOÀN VỐN ĐẦU TƯ: CHỈ SAU 45 NGÀY VẬN HÀNH</strong>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 6px;">Với 60.000 lượt phương tiện qua cụm nút giao mỗi ngày, hơn 18.000 giờ công lao động được giải phóng khỏi cảnh ùn tắc giao thông.</p>
+          </div>
+        </div>
+        <div class="col-media">
+          <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid var(--accent-green); border-radius: 12px; padding: 24px; text-align: center; width: 100%;">
+            <div style="font-size: 44px; font-weight: 800; color: var(--accent-green); font-family: var(--font-mono);">ROI = 320%</div>
+            <div style="font-size: 14px; color: #ffffff; margin-top: 6px; font-weight: 700;">TỶ SUẤT HOÀN VỐN XÃ HỘI NĂM ĐẦU</div>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">So sánh với giải pháp xây cầu vượt thép (chi phí 300 - 500 tỷ VNĐ và mất 2 năm thi công).</p>
+          </div>
+        </div>
+      </div>
+      <div style="font-size: 11px; color: var(--text-muted);">Định giá thời gian lao động theo thu nhập bình quân đầu người TP.HCM 2026.</div>
+    </div>
+
+    <!-- SLIDE 11: CALL TO ACTION -->
+    <div class="slide" data-notes="Kính thưa Ban Giám đốc! Dữ liệu đã rõ ràng, giải pháp đã sẵn sàng, và công nghệ đã được chứng minh hiệu quả. Câu hỏi bây giờ không phải là 'có nên làm hay không', mà là 'chúng ta bắt đầu từ ngày nào'. Chúng tôi rất mong nhận được sự đồng thuận và phê duyệt từ quý vị. Xin chân thành cảm ơn!">
+      <div>
+        <div class="slide-badge">10 • KẾT LUẬN & KIẾN NGHỊ</div>
+        <h2 class="slide-title">Lời Kêu Gọi Hành Động (The Call to Action)</h2>
+      </div>
+      <div class="slide-content">
+        <div class="col-text" style="gap: 16px;">
+          <h3 style="font-size: 18px; color: var(--accent-cyan);">Đề Nghị Ban Giám Đốc Sở GTVT TP.HCM Phê Duyệt 3 Nội Dung:</h3>
+          <div class="highlight-card">
+            <strong>1. Chấp thuận chủ trương triển khai Gói Thí Điểm</strong><br/>
+            <span style="font-size: 13px; color: var(--text-muted);">Thời gian thực hiện: Quý IV/2026 tại Cụm Quận 10 – Tân Bình.</span>
+          </div>
+          <div class="highlight-card gold">
+            <strong>2. Giao Trung tâm Điều hành Giao thông Đô thị làm đầu mối</strong><br/>
+            <span style="font-size: 13px; color: var(--text-muted);">Tiếp nhận công nghệ và phối hợp kết nối với IOC thành phố.</span>
+          </div>
+          <div class="highlight-card green">
+            <strong>3. Bố trí kinh phí thí điểm 3,2 tỷ VNĐ</strong><br/>
+            <span style="font-size: 13px; color: var(--text-muted);">Trích từ ngân sách Đô thị thông minh và Chuyển đổi số giao thông năm 2026.</span>
+          </div>
+        </div>
+        <div class="col-media">
+          <div style="background: rgba(0, 229, 255, 0.08); border: 1px solid var(--accent-cyan); border-radius: 12px; padding: 30px; text-align: center; width: 100%;">
+            <div style="font-size: 32px; margin-bottom: 10px;">🚀</div>
+            <strong style="color: var(--accent-cyan); font-size: 18px;">HÀNH ĐỘNG DỰA TRÊN DỮ LIỆU</strong>
+            <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 10px;">"Không thể giải quyết ùn tắc của ngày hôm nay bằng tư duy điều hành của ngày hôm qua."</p>
+          </div>
+        </div>
+      </div>
+      <div style="font-size: 11px; color: var(--text-muted); text-align: center;">Xin trân trọng cảm ơn Ban Giám Đốc và Hội Đồng! • Q&A Session</div>
+    </div>
+  </main>
+
+  <!-- Speaker Notes Drawer -->
+  <aside class="speaker-notes-drawer" id="speaker-notes-drawer">
+    <div class="notes-title">🎙️ LỜI THOẠI DIỄN GIẢ (SPEAKER NOTES) - DÀNH CHO BẠN THUYẾT TRÌNH:</div>
+    <div id="notes-content">Đang tải lời thoại...</div>
+  </aside>
+
+  <!-- Footer Navigation -->
+  <footer class="slide-footer">
+    <div class="nav-controls">
+      <button class="btn-nav" id="btn-prev">◀ Trang trước (Phím ⬅)</button>
+      <button class="btn-nav" id="btn-next">Trang sau (Phím ➔) ▶</button>
+    </div>
+    <div class="slide-progress" id="slide-progress">Slide 1 / 11</div>
+    <div style="color: var(--text-muted); font-size: 11px;">Mẹo: Dùng phím mũi tên Trái / Phải để chuyển slide</div>
+  </footer>
+
+  <script>
+    let currentIndex = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const progressEl = document.getElementById('slide-progress');
+    const notesEl = document.getElementById('notes-content');
+    const drawerEl = document.getElementById('speaker-notes-drawer');
+    const btnToggleNotes = document.getElementById('btn-toggle-notes');
+
+    function showSlide(index) {
+      if (index < 0) index = 0;
+      if (index >= totalSlides) index = totalSlides - 1;
+      currentIndex = index;
+
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', idx === currentIndex);
+      });
+
+      progressEl.textContent = `Slide ${currentIndex + 1} / ${totalSlides}`;
+      const currentNotes = slides[currentIndex].dataset.notes || 'Không có ghi chú cho slide này.';
+      notesEl.textContent = currentNotes;
+    }
+
+    document.getElementById('btn-prev').addEventListener('click', () => showSlide(currentIndex - 1));
+    document.getElementById('btn-next').addEventListener('click', () => showSlide(currentIndex + 1));
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'Space') showSlide(currentIndex + 1);
+      if (e.key === 'ArrowLeft') showSlide(currentIndex - 1);
+      if (e.key.toLowerCase() === 's') toggleNotes();
+    });
+
+    btnToggleNotes.addEventListener('click', toggleNotes);
+
+    function toggleNotes() {
+      drawerEl.classList.toggle('open');
+      btnToggleNotes.classList.toggle('active');
+    }
+
+    document.getElementById('btn-fullscreen').addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => alert(err.message));
+      } else {
+        document.exitFullscreen();
+      }
+    });
+
+    // Initialize
+    showSlide(0);
+  </script>
+</body>
+</html>

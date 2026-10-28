@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo Cáo Tư Vấn Chiến Lược Quản Lý Giao Thông Đô Thị TP.HCM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #3b82f6;
+      --accent: #d97706;
+      --text: #1f2937;
+      --text-muted: #4b5563;
+      --bg-light: #f8fafc;
+      --border: #e2e8f0;
+      --danger: #dc2626;
+      --success: #16a34a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text);
+      line-height: 1.7;
+      background-color: #f1f5f9;
+      padding: 40px 20px;
+    }
+
+    .report-container {
+      max-width: 960px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 60px 80px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      border-radius: 8px;
+    }
+
+    /* Cover Header */
+    .cover-header {
+      border-bottom: 3px solid var(--primary);
+      padding-bottom: 30px;
+      margin-bottom: 40px;
+    }
+    .meta-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--primary-light);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    h1.report-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+    h2.report-subtitle {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+    .report-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      background: var(--bg-light);
+      padding: 16px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .report-meta-grid strong { color: var(--text); }
+
+    /* Transmittal letter */
+    .transmittal {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary-light);
+      padding: 24px;
+      margin: 30px 0;
+      font-style: italic;
+      font-family: 'Merriweather', serif;
+      font-size: 14.5px;
+      color: #334155;
+    }
+
+    /* Headings */
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 40px 0 16px 0;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 24px 0 10px 0;
+    }
+
+    p { margin-bottom: 16px; font-size: 14.5px; text-align: justify; }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 13.5px;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background: #f1f5f9;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    tr:nth-child(even) td { background: #f8fafc; }
+
+    /* Chart Figures */
+    figure {
+      margin: 30px 0;
+      text-align: center;
+    }
+    figure img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 6px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--border);
+    }
+    figcaption {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      font-style: italic;
+    }
+
+    /* Callout */
+    .callout {
+      background: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      padding: 16px 20px;
+      border-radius: 0 6px 6px 0;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+    .callout strong { color: #1e40af; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .badge-danger { background: #fee2e2; color: #b91c1c; }
+    .badge-success { background: #dcfce7; color: #15803d; }
+
+    /* Print styles */
+    @media print {
+      body { background: white; padding: 0; }
+      .report-container { box-shadow: none; padding: 0; }
+      h2 { page-break-before: auto; }
+      figure { page-break-inside: avoid; }
+      table { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="report-container">
+    <header class="cover-header">
+      <div class="meta-tag">HỒ SƠ BÁO CÁO TƯ VẤN CHIẾN LƯỢC • DOT HCMC IOC 2026</div>
+      <h1 class="report-title">BÁO CÁO TƯ VẤN QUẢN LÝ GIAO THÔNG ĐÔ THỊ THÍCH ỨNG TP. HỒ CHÍ MINH</h1>
+      <h2 class="report-subtitle">ĐỀ ÁN ĐIỀU HÀNH DÒNG XE THÍCH ỨNG DỰA TRÊN DỮ LIỆU LỚN & AI TẠI CỤM NÚT THẮT QUẬN 10 – TÂN BÌNH</h2>
+      
+      <div class="report-meta-grid">
+        <div><strong>Cơ quan đệ trình:</strong> Liên danh Tư vấn Smart Mobility Advisory Group</div>
+        <div><strong>Kính gửi:</strong> Ban Giám đốc Sở GTVT TP. Hồ Chí Minh</div>
+        <div><strong>Dữ liệu phân tích:</strong> 33.441 mẫu LOS & 90.938 mẫu vận tốc thực tế</div>
+        <div><strong>Thời gian phát hành:</strong> Tháng 10/2026 (Chính thức)</div>
+      </div>
+    </header>
+
+    <div class="transmittal">
+      "Kính gửi Ban Giám đốc Sở GTVT TP.HCM: Báo cáo này đệ trình các bằng chứng định lượng từ dữ liệu lớn giao thông nhằm chứng minh tính cấp bách và hiệu quả vượt trội của việc chuyển đổi từ chu kỳ đèn cố định sang Hệ thống Tín hiệu Giao thông Thích ứng (Adaptive AI Control) tại các điểm nghẽn trọng điểm đô thị."
+    </div>
+
+    <h2>TÓM TẮT ĐIỀU HÀNH (EXECUTIVE SUMMARY)</h2>
+    <p>Qua phân tích <strong>33.441 mẫu quan sát giao thông</strong> và <strong>90.938 mẫu đo vận tốc cảm biến tức thời</strong> trên địa bàn TP.HCM, nhóm tư vấn đã xác định các chỉ số đo lường then chốt sau:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Chỉ số định lượng</th>
+          <th>Giá trị thực tế từ dữ liệu</th>
+          <th>Hàm ý nghiệp vụ đối với Sở GTVT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Tỷ lệ kẹt xe nghiêm trọng (LOS E & F)</strong></td>
+          <td><span class="badge badge-danger">23,6% toàn mạng lưới</span></td>
+          <td>Gần 1/4 tổng số thời gian quan sát rơi vào trạng thái ùn tắc nặng.</td>
+        </tr>
+        <tr>
+          <td><strong>Đỉnh cao điểm chiều (16h30 - 19h30)</strong></td>
+          <td><strong>38,2%</strong> tuyến đường kẹt cứng</td>
+          <td>Thời điểm áp lực giao thông bùng nổ mạnh nhất trong ngày.</td>
+        </tr>
+        <tr>
+          <td><strong>Vận tốc hành trình trung vị (Median Speed)</strong></td>
+          <td><strong>17,0 km/h</strong></td>
+          <td>Thấp hơn 57,5% so với vận tốc thiết kế tiêu chuẩn (40 km/h).</td>
+        </tr>
+        <tr>
+          <td><strong>Tỷ lệ phương tiện dừng chết (&le; 2 km/h)</strong></td>
+          <td><strong>25,0%</strong> tổng số mẫu cảm biến</td>
+          <td>Phương tiện phải dừng đỗ, chờ quá 2-3 chu kỳ đèn tại các nút giao.</td>
+        </tr>
+        <tr>
+          <td><strong>Tâm chấn kẹt xe trọng điểm</strong></td>
+          <td>Cụm Q.10 & Tân Bình (Lý Thường Kiệt, Tô Hiến Thành)</td>
+          <td>Đường cấp 1 (`primary`) và nhánh phụ (`tertiary`) chịu quá tải lớn nhất.</td>
+        </tr>
+        <tr>
+          <td><strong>Hiệu quả dự báo sau can thiệp thích ứng</strong></td>
+          <td><span class="badge badge-success">Giảm 57,1% kẹt xe cao điểm</span></td>
+          <td>Vận tốc tăng lên 23,5 km/h, tiết kiệm 18,4 phút/lượt di chuyển.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>I. 4 TRỤ CỘT BẰNG CHỨNG DỮ LIỆU ĐỊNH LƯỢNG</h2>
+
+    <h3>1. Phân Phối Cấp Phục Vụ Giao Thông (LOS)</h3>
+    <p>Dữ liệu chỉ ra hiện tượng phân cực rõ nét: Cấp độ A (lưu thông tự do) chiếm 39,7% nhờ các khung giờ đêm và các đường trục vành đai. Tuy nhiên, hai cấp độ kẹt xe nghiêm trọng E và F tổng cộng chiếm tới 23,6%, phản ánh tình trạng quá tải nghiêm trọng của mạng lưới đường nội đô.</p>
+
+    <figure>
+      <img src="assets/chart1_los_distribution.png" alt="Phân Phối Cấp Độ Phục Vụ Giao Thông TP.HCM">
+      <figcaption>Hình 1: Phân phối số lượng và tỷ lệ phần trăm các cấp độ phục vụ giao thông (LOS TP.HCM).</figcaption>
+    </figure>
+
+    <h3>2. Động Học Thời Gian & Hai Đỉnh Cao Điểm Khắc Nghiệt</h3>
+    <p>Khảo sát chu kỳ 24 giờ cho thấy hai đỉnh ùn tắc rõ rệt: đỉnh cao điểm sáng (6h30 - 9h00, tỷ lệ kẹt xe 30,8%) và đỉnh cao điểm chiều (16h30 - 19h30, tỷ lệ kẹt xe đạt mức kỷ lục 38,2%). Vào ban đêm từ 0h đến 5h30, dòng xe hoàn toàn thông suốt.</p>
+
+    <figure>
+      <img src="assets/chart2_temporal_dynamics.png" alt="Biến Thiên Cơ Cấu LOS và Điểm Áp Lực Giao Thông">
+      <figcaption>Hình 2: Biến thiên cơ cấu LOS và chỉ số căng thẳng giao thông theo chu kỳ 24 giờ.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="assets/chart3_weekday_hour_heatmap.png" alt="Bản Đồ Nhiệt Khung Giờ x Ngày Trong Tuần">
+      <figcaption>Hình 3: Bản đồ nhiệt tỷ lệ kẹt xe nghiêm trọng theo Khung Giờ & Ngày trong tuần.</figcaption>
+    </figure>
+
+    <h3>3. Nghịch Lý Cấu Trúc Thứ Bậc Đường Bộ</h3>
+    <p>Trái với suy nghĩ phổ biến rằng đường lớn kẹt hơn đường nhỏ, dữ liệu chứng minh các tuyến đường trục chính (trunk như QL1) có tỷ lệ lưu thông tự do lên tới 68,4%. Ngược lại, các tuyến đường cấp 1 (primary) và đường nhánh (tertiary) như Lý Thường Kiệt, Tô Hiến Thành lại có tỷ lệ kẹt xe nghiêm trọng vượt mức 26,5% do mật độ giao cắt lớn và tập trung các cơ sở y tế, giáo dục.</p>
+
+    <figure>
+      <img src="assets/chart4_road_hierarchy.png" alt="Tỷ Lệ Kẹt Xe Theo Cấp Đường">
+      <figcaption>Hình 4: Tỷ lệ kẹt xe nghiêm trọng (LOS E-F) và thông thoáng (LOS A) theo cấp phân loại đường.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="assets/chart5_top_bottlenecks.png" alt="Top 15 Tuyến Đường Điểm Nóng">
+      <figcaption>Hình 5: Top 15 tuyến đường có số lượt ghi nhận kẹt xe nghiêm trọng cao nhất TP.HCM.</figcaption>
+    </figure>
+
+    <h3>4. Khủng Hoảng Vận Tốc Thực Tế & Hiện Tượng Dừng - Đi (Stop-and-Go)</h3>
+    <p>Phân tích 90.938 mẫu đo vận tốc từ hệ thống cảm biến giám sát cho thấy: Vận tốc trung vị của dòng xe đô thị chỉ đạt 17,0 km/h. Đặc biệt, có đến 25,0% tổng số lần đo ghi nhận vận tốc dưới 2 km/h (phương tiện dừng chết tại chỗ).</p>
+
+    <figure>
+      <img src="assets/chart6_velocity_dynamics.png" alt="Phân Phối Vận Tốc Thực Tế">
+      <figcaption>Hình 6: Phân phối mật độ vận tốc tức thời và cơ cấu các nhóm tốc độ di chuyển.</figcaption>
+    </figure>
+
+    <h2>II. ĐỀ XUẤT KẾ HOẠCH HÀNH ĐỘNG & MÔ PHỎNG HIỆU QUẢ CAN THIỆP</h2>
+    <div class="callout">
+      <strong>ĐỀ XUẤT TRỌNG TÂM CỦA CHUYÊN GIA:</strong> Triển khai thí điểm Hệ thống Tín hiệu Đèn Thông minh Thích ứng (Adaptive AI Signal Control) kết hợp Phân luồng động 1 chiều giờ cao điểm trên trục Lý Thường Kiệt – Tô Hiến Thành (Cụm Quận 10 - Tân Bình) trong thời gian 06 tháng.
+    </div>
+
+    <figure>
+      <img src="assets/chart7_simulation_impact.png" alt="Mô Phỏng Tác Động Các Kịch Bản Can Thiệp">
+      <figcaption>Hình 7: Dự báo mức giảm tắc nghẽn và cải thiện vận tốc theo các kịch bản can thiệp chính sách.</figcaption>
+    </figure>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Kịch bản đánh giá</th>
+          <th>Tỷ lệ kẹt xe giờ cao điểm</th>
+          <th>Vận tốc trung bình</th>
+          <th>Thời gian tiết kiệm</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Hiện trạng thực tế (Chưa can thiệp)</strong></td>
+          <td>38,2%</td>
+          <td>14,2 km/h</td>
+          <td>Baseline (0 phút)</td>
+        </tr>
+        <tr>
+          <td><strong>Kịch bản 1: Phân luồng động & Cấm rẽ trái</strong></td>
+          <td>28,5% (-25,4%)</td>
+          <td>18,0 km/h</td>
+          <td>~8,5 phút / chuyến</td>
+        </tr>
+        <tr>
+          <td><strong>Kịch bản 2: Đèn tín hiệu AI thích ứng</strong></td>
+          <td>20,4% (-46,6%)</td>
+          <td>23,5 km/h</td>
+          <td>~14,2 phút / chuyến</td>
+        </tr>
+        <tr>
+          <td><strong>Kịch bản 3: Tích hợp đầy đủ (Đề xuất)</strong></td>
+          <td><strong style="color: var(--success);">14,1% (-63,1%)</strong></td>
+          <td><strong style="color: var(--success);">27,8 km/h (+95,8%)</strong></td>
+          <td><strong style="color: var(--success);">~18,4 phút / chuyến</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>III. PHÂN TÍCH HIỆU QUẢ HOÀN VỐN ĐẦU TƯ XÃ HỘI (ROI)</h2>
+    <p>Tổng mức kinh phí đề xuất cho Gói thí điểm 06 tháng tại Cụm Quận 10 – Tân Bình là <strong>3,2 tỷ VNĐ</strong>. Với lưu lượng bình quân 60.000 lượt phương tiện qua cụm nút giao mỗi ngày, giá trị thời gian và nhiên liệu tiết kiệm ước tính đạt khoảng <strong>1,2 tỷ VNĐ/ngày</strong>. Nhờ đó, dự án đạt thời gian hoàn vốn xã hội chỉ sau <strong>khoảng 45 ngày vận hành thực tế</strong>.</p>
+
+    <div style="margin-top: 50px; border-top: 2px solid var(--border); padding-top: 20px; display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted);">
+      <div>Báo cáo tư vấn chuyên sâu • Phát hành bởi Nhóm Chuyên gia Smart Mobility</div>
+      <div>Bảo lưu bản quyền kỹ thuật © 2026</div>
+    </div>
+  </div>
+</body>
+</html>
