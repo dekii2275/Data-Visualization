@@ -1176,3 +1176,406 @@ input:checked + .slider:before {
     grid-template-columns: 300px 1fr 320px;
   }
 }
+
+/* ==========================================================================
+   SMART ROUTING SIMULATOR STYLES
+   ========================================================================== */
+
+/* Button Accent (Cyan Glow) */
+.btn-accent {
+  background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+  font-weight: 700;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+}
+.btn-accent:hover {
+  background: linear-gradient(135deg, #0891b2 0%, #0369a1 100%);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
+  transform: translateY(-1px);
+}
+
+/* Mode Switcher Tabs */
+.panel-mode-tabs {
+  display: flex;
+  background: var(--bg-dark-0);
+  padding: 4px;
+  border-radius: 8px;
+  margin: 12px 14px 14px;
+  border: 1px solid var(--border-subtle);
+  gap: 4px;
+}
+
+.mode-tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 7px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-tab-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mode-tab-btn.active {
+  background: rgba(0, 229, 255, 0.15);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+}
+
+/* Routing Section Label */
+.routing-section-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--accent-cyan);
+  letter-spacing: 0.6px;
+  margin: 14px 14px 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Scenario Selector Grid */
+.scenario-selector-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 14px;
+}
+
+.scenario-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.scenario-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-light);
+  transform: translateX(3px);
+}
+
+.scenario-card.active {
+  border-color: var(--accent-cyan);
+  background: rgba(0, 229, 255, 0.08);
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.18);
+}
+
+.scenario-card-icon {
+  font-size: 20px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.scenario-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.scenario-card-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scenario-card-route {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Scenario Context Briefing */
+.scenario-briefing {
+  background: rgba(13, 18, 31, 0.8);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--accent-cyan);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 12px 14px;
+}
+
+.briefing-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.briefing-icon {
+  font-size: 18px;
+}
+
+.briefing-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+
+.briefing-sub {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+.briefing-desc {
+  font-size: 11px;
+  color: var(--text-main);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Vehicle Mode Selector */
+.vehicle-mode-selector {
+  display: flex;
+  gap: 6px;
+  padding: 0 14px;
+  margin-bottom: 12px;
+}
+
+.btn-vehicle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  padding: 6px 4px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-vehicle:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-main);
+}
+
+.btn-vehicle.active {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+  color: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+}
+
+/* Route Comparison Side-by-Side */
+.routing-comp-card {
+  margin: 12px 14px;
+  padding: 12px;
+  background: rgba(13, 18, 31, 0.9);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+}
+
+.routes-side-by-side {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  position: relative;
+}
+
+.route-col {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.static-col {
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.dynamic-col {
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  background: rgba(0, 229, 255, 0.04);
+}
+
+.route-tag {
+  font-size: 10px;
+  font-weight: 800;
+  text-align: center;
+  padding: 3px 0;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.static-tag {
+  background: rgba(239, 68, 68, 0.18);
+  color: #ff6b6b;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.dynamic-tag {
+  background: rgba(0, 229, 255, 0.18);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+}
+
+.route-stat-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.route-stat-item .lbl {
+  color: var(--text-dim);
+}
+
+.routes-vs {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 26px;
+  height: 26px;
+  background: var(--bg-dark-2);
+  border: 1px solid var(--border-light);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9.5px;
+  font-weight: 900;
+  color: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+  z-index: 5;
+}
+
+/* Routing Highlights */
+.routing-highlights {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.highlight-pill {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  text-align: center;
+}
+
+.highlight-pill.success {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+.highlight-pill.info {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  color: #60a5fa;
+}
+
+/* Strategy Callout Box */
+.strategy-callout {
+  background: rgba(0, 229, 255, 0.05);
+  border: 1px dashed rgba(0, 229, 255, 0.3);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 10px 14px;
+}
+
+.strategy-callout strong {
+  display: block;
+  font-size: 11px;
+  color: var(--accent-cyan);
+  margin-bottom: 4px;
+}
+
+.strategy-callout p {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Routing Action Buttons */
+.routing-action-buttons {
+  padding: 10px 14px 14px;
+}
+
+/* Custom Marker Styling for Routes */
+.route-hazard-icon {
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.8);
+  border: 2px solid #ffffff;
+  animation: hazard-flash 1.2s infinite alternate;
+}
+
+@keyframes hazard-flash {
+  0% { transform: scale(0.9); box-shadow: 0 0 5px rgba(239, 68, 68, 0.6); }
+  100% { transform: scale(1.15); box-shadow: 0 0 18px rgba(239, 68, 68, 1); }
+}
+
+.route-start-icon, .route-end-icon {
+  background: #10b981;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.9);
+  border: 2px solid #ffffff;
+}
+
+.route-end-icon {
+  background: #ef4444;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.9);
+}
+
+/* Vehicle Animation DivIcon */
+.route-vehicle-icon {
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.9));
+  transition: transform 0.15s linear;
+}
+

@@ -20,6 +20,16 @@ const state = {
     adaptive: true,
     tidal: true,
     noLeft: false
+  },
+  activeTab: 'policy', // 'policy' | 'routing'
+  activeScenarioIndex: 0,
+  vehicleMode: 'emergency', // 'emergency' | 'car' | 'bus'
+  routingLayers: [],
+  vehicleAnimation: {
+    interval: null,
+    staticMarker: null,
+    dynamicMarker: null,
+    isRunning: false
   }
 };
 
@@ -78,6 +88,7 @@ async function loadTrafficData() {
     renderHotspots();
     renderSegments();
     populateHotspotsList();
+    initRoutingSimulator();
   } catch (err) {
     console.error('[IOC] Failed to load traffic_data.json:', err);
     alert('Không thể nạp dữ liệu traffic_data.json. Đang chạy trong môi trường cục bộ.');
@@ -298,6 +309,9 @@ function updateDashboard(hourFloat) {
   // Redraw map lines for new hour
   renderSegments();
   updateSimulationImpact();
+  if (state.activeTab === 'routing') {
+    updateRouteMetricsForHour(state.currentHour);
+  }
 }
 
 // ==========================================================================
@@ -448,4 +462,410 @@ function startPlayback() {
     }
     updateDashboard(state.currentHour);
   }, intervalMs);
+}
+
+// ==========================================================================
+// SMART ROUTING SIMULATOR MODULE
+// ==========================================================================
+
+function initRoutingSimulator() {
+  // Tab Switching buttons
+  const btnPolicy = document.getElementById('tab-btn-policy');
+  const btnRouting = document.getElementById('tab-btn-routing');
+  if (btnPolicy) btnPolicy.addEventListener('click', () => switchTab('policy'));
+  if (btnRouting) btnRouting.addEventListener('click', () => switchTab('routing'));
+
+  // Header quick jump button
+  const btnOpenRouting = document.getElementById('btn-open-routing');
+  if (btnOpenRouting) {
+    btnOpenRouting.addEventListener('click', () => {
+      switchTab('routing');
+      document.getElementById('panel-simulation').scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+
+  // Header open simulation button should switch to policy tab
+  const btnOpenSim = document.getElementById('btn-open-simulation');
+  if (btnOpenSim) {
+    btnOpenSim.addEventListener('click', () => {
+      switchTab('policy');
+      document.getElementById('panel-simulation').scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+
+  // Vehicle mode selector
+  document.querySelectorAll('.btn-vehicle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.btn-vehicle').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.vehicleMode = btn.dataset.mode;
+      renderActiveScenarioRoute();
+    });
+  });
+
+  // Action buttons
+  const btnStartSim = document.getElementById('btn-start-vehicle-sim');
+  if (btnStartSim) {
+    btnStartSim.addEventListener('click', toggleVehicleSimulation);
+  }
+
+  const btnResetSim = document.getElementById('btn-reset-route-view');
+  if (btnResetSim) {
+    btnResetSim.addEventListener('click', resetRoutingView);
+  }
+
+  // Populate scenario cards
+  renderScenarioCards();
+}
+
+function switchTab(tabName) {
+  state.activeTab = tabName;
+  const btnPolicy = document.getElementById('tab-btn-policy');
+  const btnRouting = document.getElementById('tab-btn-routing');
+  const panePolicy = document.getElementById('tab-content-policy');
+  const paneRouting = document.getElementById('tab-content-routing');
+  const title = document.getElementById('panel-right-title');
+  const badge = document.getElementById('panel-right-badge');
+
+  if (tabName === 'routing') {
+    if (btnPolicy) btnPolicy.classList.remove('active');
+    if (btnRouting) btnRouting.classList.add('active');
+    if (panePolicy) panePolicy.style.display = 'none';
+    if (paneRouting) paneRouting.style.display = 'block';
+    if (title) title.textContent = 'ĐỊNH TUYẾN THÍCH ỨNG AI';
+    if (badge) badge.textContent = 'AI DYNAMIC ROUTING';
+
+    renderActiveScenarioRoute();
+  } else {
+    if (btnPolicy) btnPolicy.classList.add('active');
+    if (btnRouting) btnRouting.classList.remove('active');
+    if (panePolicy) panePolicy.style.display = 'block';
+    if (paneRouting) paneRouting.style.display = 'none';
+    if (title) title.textContent = 'MÔ PHỎNG GIẢI PHÁP CAN THIỆP';
+    if (badge) badge.textContent = 'TƯ VẤN SỞ GTVT';
+
+    clearRoutingLayers();
+    stopVehicleSimulation();
+    state.map.setView([10.7765, 106.6620], 13);
+  }
+}
+
+function renderScenarioCards() {
+  const container = document.getElementById('scenario-selector-grid');
+  if (!container || !state.data || !state.data.routing_scenarios) return;
+
+  container.innerHTML = '';
+  state.data.routing_scenarios.forEach((sc, idx) => {
+    const card = document.createElement('div');
+    card.className = `scenario-card ${idx === state.activeScenarioIndex ? 'active' : ''}`;
+    card.dataset.index = idx;
+    card.innerHTML = `
+      <div class="scenario-card-icon">${sc.icon}</div>
+      <div class="scenario-card-info">
+        <div class="scenario-card-title">${sc.name}</div>
+        <div class="scenario-card-route">${sc.start.name.split('(')[0]} ➔ ${sc.end.name.split('(')[0]}</div>
+      </div>
+    `;
+
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      state.activeScenarioIndex = idx;
+      renderActiveScenarioRoute();
+    });
+
+    container.appendChild(card);
+  });
+}
+
+function clearRoutingLayers() {
+  state.routingLayers.forEach(l => state.map.removeLayer(l));
+  state.routingLayers = [];
+}
+
+function renderActiveScenarioRoute() {
+  if (!state.data || !state.data.routing_scenarios) return;
+  const sc = state.data.routing_scenarios[state.activeScenarioIndex];
+  if (!sc) return;
+
+  stopVehicleSimulation();
+  clearRoutingLayers();
+
+  // 1. Draw Static Route (Crimson dashed line)
+  const staticLine = L.polyline(sc.static_route.path, {
+    color: '#ef4444',
+    weight: 5,
+    opacity: 0.85,
+    dashArray: '8, 8'
+  });
+  staticLine.bindTooltip(`<strong>Lộ Trình Cũ (Tĩnh)</strong><br/>Khoảng cách: ${sc.static_route.distance_km} km`, {
+    sticky: true
+  });
+  staticLine.addTo(state.map);
+  state.routingLayers.push(staticLine);
+
+  // 2. Draw Bottleneck Hazard Markers along static route
+  if (sc.static_route.bottlenecks) {
+    sc.static_route.bottlenecks.forEach(bn => {
+      const hazardIcon = L.divIcon({
+        className: 'route-hazard-icon',
+        html: '⚠️',
+        iconSize: [26, 26],
+        iconAnchor: [13, 13]
+      });
+      const m = L.marker(bn.coords, { icon: hazardIcon });
+      m.bindPopup(`
+        <div style="font-family: var(--font-sans); color: #111; max-width: 220px;">
+          <h5 style="margin: 0 0 4px; color: #dc2626; font-size: 12px;">⚠️ NÚT THẮT TÊ LIỆT</h5>
+          <strong style="font-size: 11px;">${bn.name}</strong>
+          <p style="margin: 4px 0 0; font-size: 10.5px; color: #555;">Cấp: <strong>LOS ${bn.los}</strong> | Tốc độ bò: <strong>${bn.speed} km/h</strong><br/>${bn.desc}</p>
+        </div>
+      `);
+      m.addTo(state.map);
+      state.routingLayers.push(m);
+    });
+  }
+
+  // 3. Draw Dynamic AI Route (Neon Cyan solid glow)
+  const dynamicLine = L.polyline(sc.dynamic_route.path, {
+    color: '#00f2fe',
+    weight: 6.5,
+    opacity: 0.95
+  });
+  dynamicLine.bindTooltip(`<strong>Đề Xuất AI (Động)</strong><br/>Khoảng cách: ${sc.dynamic_route.distance_km} km`, {
+    sticky: true
+  });
+  dynamicLine.addTo(state.map);
+  state.routingLayers.push(dynamicLine);
+
+  // 4. Start & End Markers
+  const startIcon = L.divIcon({
+    className: 'route-start-icon',
+    html: 'A',
+    iconSize: [26, 26],
+    iconAnchor: [13, 13]
+  });
+  const startMarker = L.marker(sc.start.coords, { icon: startIcon });
+  startMarker.bindPopup(`<strong>Xuất phát (A):</strong><br/>${sc.start.name}`);
+  startMarker.addTo(state.map);
+  state.routingLayers.push(startMarker);
+
+  const endIcon = L.divIcon({
+    className: 'route-end-icon',
+    html: 'B',
+    iconSize: [26, 26],
+    iconAnchor: [13, 13]
+  });
+  const endMarker = L.marker(sc.end.coords, { icon: endIcon });
+  endMarker.bindPopup(`<strong>Đích đến (B):</strong><br/>${sc.end.name}`);
+  endMarker.addTo(state.map);
+  state.routingLayers.push(endMarker);
+
+  // Fit bounds to display both routes
+  const bounds = L.featureGroup([staticLine, dynamicLine]).getBounds();
+  state.map.fitBounds(bounds, { padding: [60, 60] });
+
+  // Update Briefing & Content
+  document.getElementById('sc-icon').textContent = sc.icon;
+  document.getElementById('sc-title').textContent = sc.name;
+  document.getElementById('sc-sub').textContent = `${sc.start.name.split('(')[0]} ➔ ${sc.end.name.split('(')[0]}`;
+  document.getElementById('sc-desc').textContent = sc.context;
+
+  updateRouteMetricsForHour(state.currentHour);
+}
+
+function updateRouteMetricsForHour(hourFloat) {
+  if (!state.data || !state.data.routing_scenarios) return;
+  const sc = state.data.routing_scenarios[state.activeScenarioIndex];
+  if (!sc) return;
+
+  const hInt = Math.floor(hourFloat);
+  const mInt = Math.round((hourFloat - hInt) * 60);
+  const timeStr = `${String(hInt).padStart(2, '0')}:${String(mInt).padStart(2, '0')}`;
+  
+  const hourLbl = document.getElementById('route-current-hour-label');
+  if (hourLbl) hourLbl.textContent = timeStr;
+
+  // Factor based on hour
+  let peakFactor = 0.35; // off peak
+  if ((hourFloat >= 6.5 && hourFloat <= 9.0) || (hourFloat >= 16.5 && hourFloat <= 19.5)) {
+    peakFactor = 1.0; // peak
+  } else if (hourFloat >= 10.0 && hourFloat <= 16.0) {
+    peakFactor = 0.55; // midday
+  }
+
+  // Calculate static and dynamic travel times
+  const staticMaxTime = sc.static_route.peak_travel_time_min;
+  const staticMinTime = Math.max(6.0, sc.static_route.distance_km * 2.5);
+  const currentStaticTime = (staticMinTime + (staticMaxTime - staticMinTime) * peakFactor).toFixed(1);
+  const currentStaticSpeed = Math.max(3.0, ((sc.static_route.distance_km / (currentStaticTime / 60))).toFixed(1));
+
+  const dynamicMaxTime = sc.dynamic_route.peak_travel_time_min;
+  const dynamicMinTime = Math.max(5.0, sc.dynamic_route.distance_km * 2.0);
+  let currentDynamicTime = (dynamicMinTime + (dynamicMaxTime - dynamicMinTime) * (peakFactor * 0.4)).toFixed(1);
+  
+  // Ambulance mode bonus (faster priority)
+  if (state.vehicleMode === 'emergency') {
+    currentDynamicTime = Math.max(4.5, (currentDynamicTime * 0.85).toFixed(1));
+  } else if (state.vehicleMode === 'bus') {
+    currentDynamicTime = (currentDynamicTime * 1.15).toFixed(1);
+  }
+
+  const currentDynamicSpeed = ((sc.dynamic_route.distance_km / (currentDynamicTime / 60))).toFixed(1);
+  const timeSaved = Math.max(1.0, (currentStaticTime - currentDynamicTime)).toFixed(1);
+  const timeSavedPct = Math.round((timeSaved / currentStaticTime) * 100);
+
+  // Update UI DOM
+  document.getElementById('static-dist').textContent = `${sc.static_route.distance_km} km`;
+  document.getElementById('static-time').textContent = `${currentStaticTime} phút`;
+  document.getElementById('static-speed').textContent = `${currentStaticSpeed} km/h`;
+  document.getElementById('static-bottlenecks').textContent = peakFactor > 0.6 ? `${sc.static_route.bottlenecks.length} nút tê liệt` : '1 nút nghẽn nhẹ';
+
+  document.getElementById('dynamic-dist').textContent = `${sc.dynamic_route.distance_km} km`;
+  document.getElementById('dynamic-time').textContent = `${currentDynamicTime} phút`;
+  document.getElementById('dynamic-speed').textContent = `${currentDynamicSpeed} km/h`;
+  document.getElementById('dynamic-bottlenecks').textContent = '0 nút (Làn sóng xanh)';
+
+  document.getElementById('hl-time-saved').innerHTML = `⏱️ TIẾT KIỆM: <strong>${timeSaved} phút (-${timeSavedPct}%)</strong>`;
+  document.getElementById('hl-co2-saved').innerHTML = `🌱 GIẢM PHÁT THẢI: <strong>-${Math.min(48, Math.round(timeSavedPct * 0.6))}% CO2</strong>`;
+  document.getElementById('strategy-text').textContent = sc.dynamic_route.strategy_applied;
+}
+
+function resetRoutingView() {
+  stopVehicleSimulation();
+  renderActiveScenarioRoute();
+}
+
+// Vehicle moving animation along routes
+function toggleVehicleSimulation() {
+  if (state.vehicleAnimation.isRunning) {
+    stopVehicleSimulation();
+  } else {
+    startVehicleSimulation();
+  }
+}
+
+function stopVehicleSimulation() {
+  if (state.vehicleAnimation.interval) {
+    clearInterval(state.vehicleAnimation.interval);
+    state.vehicleAnimation.interval = null;
+  }
+  if (state.vehicleAnimation.staticMarker) {
+    state.map.removeLayer(state.vehicleAnimation.staticMarker);
+    state.vehicleAnimation.staticMarker = null;
+  }
+  if (state.vehicleAnimation.dynamicMarker) {
+    state.map.removeLayer(state.vehicleAnimation.dynamicMarker);
+    state.vehicleAnimation.dynamicMarker = null;
+  }
+  state.vehicleAnimation.isRunning = false;
+
+  const btn = document.getElementById('btn-start-vehicle-sim');
+  if (btn) {
+    btn.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Bắt Đầu Mô Phỏng Xe Chạy
+    `;
+    btn.classList.remove('btn-success');
+    btn.classList.add('btn-primary');
+  }
+}
+
+function interpolatePath(points, progress) {
+  if (!points || points.length === 0) return [0, 0];
+  if (progress <= 0) return points[0];
+  if (progress >= 1) return points[points.length - 1];
+
+  const totalSegments = points.length - 1;
+  const targetSeg = progress * totalSegments;
+  const segIdx = Math.floor(targetSeg);
+  const segFraction = targetSeg - segIdx;
+
+  const p1 = points[Math.min(segIdx, points.length - 1)];
+  const p2 = points[Math.min(segIdx + 1, points.length - 1)];
+
+  const lat = p1[0] + (p2[0] - p1[0]) * segFraction;
+  const lng = p1[1] + (p2[1] - p1[1]) * segFraction;
+  return [lat, lng];
+}
+
+function startVehicleSimulation() {
+  stopVehicleSimulation();
+  state.vehicleAnimation.isRunning = true;
+
+  const btn = document.getElementById('btn-start-vehicle-sim');
+  if (btn) {
+    btn.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+      Dừng Mô Phỏng Xe Chạy
+    `;
+    btn.classList.remove('btn-primary');
+    btn.classList.add('btn-success');
+  }
+
+  const sc = state.data.routing_scenarios[state.activeScenarioIndex];
+  if (!sc) return;
+
+  const staticPts = sc.static_route.path;
+  const dynamicPts = sc.dynamic_route.path;
+
+  // Icon for dynamic vehicle
+  let dynIconHtml = '🚗';
+  if (state.vehicleMode === 'emergency') dynIconHtml = '🚑';
+  else if (state.vehicleMode === 'bus') dynIconHtml = '🚌';
+
+  const dynamicIcon = L.divIcon({
+    className: 'route-vehicle-icon',
+    html: dynIconHtml,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15]
+  });
+
+  const staticIcon = L.divIcon({
+    className: 'route-vehicle-icon',
+    html: '🚗',
+    iconSize: [28, 28],
+    iconAnchor: [14, 14]
+  });
+
+  state.vehicleAnimation.dynamicMarker = L.marker(dynamicPts[0], { icon: dynamicIcon }).addTo(state.map);
+  state.vehicleAnimation.staticMarker = L.marker(staticPts[0], { icon: staticIcon }).addTo(state.map);
+
+  let progressDynamic = 0.0;
+  let progressStatic = 0.0;
+
+  // Dynamic vehicle moves ~3.5x faster than static congested vehicle
+  state.vehicleAnimation.interval = setInterval(() => {
+    progressDynamic += 0.012; // Fast moving AI vehicle
+    
+    // Static vehicle crawls or gets delayed midway (around bottlenecks)
+    if (progressStatic >= 0.35 && progressStatic <= 0.65) {
+      progressStatic += 0.0012; // Crawling in gridlock
+    } else {
+      progressStatic += 0.004;
+    }
+
+    if (progressDynamic <= 1.0) {
+      const posDyn = interpolatePath(dynamicPts, progressDynamic);
+      state.vehicleAnimation.dynamicMarker.setLatLng(posDyn);
+    }
+
+    if (progressStatic <= 1.0) {
+      const posStat = interpolatePath(staticPts, progressStatic);
+      state.vehicleAnimation.staticMarker.setLatLng(posStat);
+    }
+
+    // When dynamic vehicle arrives
+    if (progressDynamic >= 1.0) {
+      clearInterval(state.vehicleAnimation.interval);
+      state.vehicleAnimation.interval = null;
+      state.vehicleAnimation.isRunning = false;
+      if (btn) {
+        btn.innerHTML = '✅ Xe Đề Xuất AI Đã Về Đích!';
+        btn.classList.remove('btn-success');
+        btn.classList.add('btn-primary');
+      }
+      state.vehicleAnimation.dynamicMarker.bindPopup(`<strong>🎉 Xe Đề Xuất AI Đã Về Đích!</strong><br/>Nhanh hơn gấp 3 lần, xe cũ vẫn đang bò tại ngã tư!`).openPopup();
+    }
+  }, 50);
 }

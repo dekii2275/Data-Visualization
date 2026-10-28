@@ -52,6 +52,10 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
         Mô Phỏng Can Thiệp
       </button>
+      <button class="btn btn-accent" id="btn-open-routing" title="Mở Mô Phỏng Đề Xuất Đường Đi Tối Ưu (Smart Routing)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+        Định Tuyến AI
+      </button>
       <button class="btn btn-outline" id="btn-toggle-fullscreen" title="Toàn màn hình thuyết trình">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
       </button>
@@ -220,99 +224,235 @@
       <div class="panel-header">
         <div class="panel-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-          <h3>MÔ PHỎNG GIẢI PHÁP CAN THIỆP</h3>
+          <h3 id="panel-right-title">MÔ PHỎNG GIẢI PHÁP CAN THIỆP</h3>
         </div>
-        <span class="badge-role">TƯ VẤN SỞ GTVT</span>
+        <span class="badge-role" id="panel-right-badge">TƯ VẤN SỞ GTVT</span>
       </div>
 
-      <div class="sim-intro">
-        Thử nghiệm các gói chính sách điều hành giao thông thông minh để chứng minh hiệu quả giảm ùn tắc trước khi phê duyệt ngân sách.
-      </div>
-
-      <!-- Policy Toggles -->
-      <div class="policy-controls">
-        <div class="policy-card">
-          <div class="policy-info">
-            <div class="policy-name">1. Đèn Tín Hiệu AI Thích Ứng (Adaptive Signal)</div>
-            <div class="policy-desc">Tự động tăng pha đèn xanh theo độ dài hàng đợi cảm biến tại 8 giao lộ chính Quận 10.</div>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="toggle-sim-adaptive" checked>
-            <span class="slider"></span>
-          </label>
-        </div>
-
-        <div class="policy-card">
-          <div class="policy-info">
-            <div class="policy-name">2. Phân Luồng Động 1 Chiều Giờ Cao Điểm</div>
-            <div class="policy-desc">Thiết lập làn sóng xanh (Tidal Flow) trên trục Lý Thường Kiệt và Tô Hiến Thành từ 16h30-19h30.</div>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="toggle-sim-tidal" checked>
-            <span class="slider"></span>
-          </label>
-        </div>
-
-        <div class="policy-card">
-          <div class="policy-info">
-            <div class="policy-name">3. Cấm Ô Tô Rẽ Trái Cục Bộ (No-Left-Turn)</div>
-            <div class="policy-desc">Cấm rẽ trái vào giờ tan tầm tại ngã tư Lý Thường Kiệt - 3 Tháng 2, chuyển hướng đi vòng.</div>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="toggle-sim-noleft">
-            <span class="slider"></span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Simulation Comparison Results -->
-      <div class="sim-results-card">
-        <div class="sim-card-header">
-          <span class="sim-badge">KẾT QUẢ DỰ BÁO HIỆU QUẢ CAN THIỆP</span>
-        </div>
-
-        <div class="comparison-row">
-          <div class="comp-col before">
-            <span class="comp-lbl">HIỆN TRẠNG</span>
-            <span class="comp-val danger" id="sim-before-severe">38.2%</span>
-            <span class="comp-sub">Tỷ lệ kẹt xe</span>
-          </div>
-          <div class="comp-arrow">➔</div>
-          <div class="comp-col after">
-            <span class="comp-lbl">SAU CAN THIỆP</span>
-            <span class="comp-val success" id="sim-after-severe">16.4%</span>
-            <span class="comp-sub">Tỷ lệ kẹt xe</span>
-          </div>
-        </div>
-
-        <div class="sim-delta-badge" id="sim-delta-badge">
-          GIẢM 57.1% TẮC NGHẼN GIỜ CAO ĐIỂM
-        </div>
-
-        <div class="sim-stat-table">
-          <div class="stat-line">
-            <span>Tốc độ lưu thông trung bình:</span>
-            <strong class="text-success" id="sim-speed-change">14.2 km/h ➔ 23.5 km/h (+65%)</strong>
-          </div>
-          <div class="stat-line">
-            <span>Thời gian tiết kiệm mỗi chuyến:</span>
-            <strong class="text-success" id="sim-time-saved">~18.4 phút / xe</strong>
-          </div>
-          <div class="stat-line">
-            <span>Ước tính thiệt hại xã hội tránh được:</span>
-            <strong class="text-success">~1.2 tỷ VNĐ / ngày</strong>
-          </div>
-        </div>
-      </div>
-
-      <!-- Call to Action Box for Consultation -->
-      <div class="cta-box">
-        <h4>ĐỀ XUẤT HÀNH ĐỘNG CỦA CHUYÊN GIA:</h4>
-        <p>Phê duyệt gói thí điểm 06 tháng tại Cụm Quận 10 - Tân Bình với kinh phí đầu tư cảm biến và bộ điều khiển thích ứng 3.2 tỷ VNĐ. Tỷ lệ hoàn vốn xã hội (Social ROI) đạt sau 45 ngày vận hành.</p>
-        <button class="btn btn-success btn-full" id="btn-export-proposal">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          Xuất Tờ Trình Đề Án Thí Điểm
+      <!-- Mode Selector Tabs -->
+      <div class="panel-mode-tabs">
+        <button class="mode-tab-btn active" id="tab-btn-policy" data-tab="policy">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg>
+          Can Thiệp Hạ Tầng
         </button>
+        <button class="mode-tab-btn" id="tab-btn-routing" data-tab="routing">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+          Định Tuyến AI (Mới)
+        </button>
+      </div>
+
+      <!-- TAB 1: WHAT-IF POLICY SIMULATION -->
+      <div id="tab-content-policy" class="tab-pane active">
+        <div class="sim-intro">
+          Thử nghiệm các gói chính sách điều hành giao thông thông minh để chứng minh hiệu quả giảm ùn tắc trước khi phê duyệt ngân sách.
+        </div>
+
+        <!-- Policy Toggles -->
+        <div class="policy-controls">
+          <div class="policy-card">
+            <div class="policy-info">
+              <div class="policy-name">1. Đèn Tín Hiệu AI Thích Ứng (Adaptive Signal)</div>
+              <div class="policy-desc">Tự động tăng pha đèn xanh theo độ dài hàng đợi cảm biến tại 8 giao lộ chính Quận 10.</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-sim-adaptive" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="policy-card">
+            <div class="policy-info">
+              <div class="policy-name">2. Phân Luồng Động 1 Chiều Giờ Cao Điểm</div>
+              <div class="policy-desc">Thiết lập làn sóng xanh (Tidal Flow) trên trục Lý Thường Kiệt và Tô Hiến Thành từ 16h30-19h30.</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-sim-tidal" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="policy-card">
+            <div class="policy-info">
+              <div class="policy-name">3. Cấm Ô Tô Rẽ Trái Cục Bộ (No-Left-Turn)</div>
+              <div class="policy-desc">Cấm rẽ trái vào giờ tan tầm tại ngã tư Lý Thường Kiệt - 3 Tháng 2, chuyển hướng đi vòng.</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-sim-noleft">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Simulation Comparison Results -->
+        <div class="sim-results-card">
+          <div class="sim-card-header">
+            <span class="sim-badge">KẾT QUẢ DỰ BÁO HIỆU QUẢ CAN THIỆP</span>
+          </div>
+
+          <div class="comparison-row">
+            <div class="comp-col before">
+              <span class="comp-lbl">HIỆN TRẠNG</span>
+              <span class="comp-val danger" id="sim-before-severe">38.2%</span>
+              <span class="comp-sub">Tỷ lệ kẹt xe</span>
+            </div>
+            <div class="comp-arrow">➔</div>
+            <div class="comp-col after">
+              <span class="comp-lbl">SAU CAN THIỆP</span>
+              <span class="comp-val success" id="sim-after-severe">16.4%</span>
+              <span class="comp-sub">Tỷ lệ kẹt xe</span>
+            </div>
+          </div>
+
+          <div class="sim-delta-badge" id="sim-delta-badge">
+            GIẢM 57.1% TẮC NGHẼN GIỜ CAO ĐIỂM
+          </div>
+
+          <div class="sim-stat-table">
+            <div class="stat-line">
+              <span>Tốc độ lưu thông trung bình:</span>
+              <strong class="text-success" id="sim-speed-change">14.2 km/h ➔ 23.5 km/h (+65%)</strong>
+            </div>
+            <div class="stat-line">
+              <span>Thời gian tiết kiệm mỗi chuyến:</span>
+              <strong class="text-success" id="sim-time-saved">~18.4 phút / xe</strong>
+            </div>
+            <div class="stat-line">
+              <span>Ước tính thiệt hại xã hội tránh được:</span>
+              <strong class="text-success">~1.2 tỷ VNĐ / ngày</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Call to Action Box for Consultation -->
+        <div class="cta-box">
+          <h4>ĐỀ XUẤT HÀNH ĐỘNG CỦA CHUYÊN GIA:</h4>
+          <p>Phê duyệt gói thí điểm 06 tháng tại Cụm Quận 10 - Tân Bình với kinh phí đầu tư cảm biến và bộ điều khiển thích ứng 3.2 tỷ VNĐ. Tỷ lệ hoàn vốn xã hội (Social ROI) đạt sau 45 ngày vận hành.</p>
+          <button class="btn btn-success btn-full" id="btn-export-proposal">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Xuất Tờ Trình Đề Án Thí Điểm
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 2: SMART ROUTING SIMULATOR -->
+      <div id="tab-content-routing" class="tab-pane" style="display: none;">
+        <div class="sim-intro">
+          Mô phỏng đối chiếu song song: Lộ trình <strong>Dijkstra tĩnh</strong> (đường ngắn nhất theo km) vs <strong>Lộ trình thích ứng AI</strong> (tối ưu hóa thời gian theo dữ liệu kẹt xe 24h).
+        </div>
+
+        <!-- Scenario Selector Cards -->
+        <div class="routing-section-label">CHỌN KỊCH BẢN MÔ PHỎNG:</div>
+        <div class="scenario-selector-grid" id="scenario-selector-grid">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Scenario Context Briefing -->
+        <div class="scenario-briefing" id="scenario-briefing">
+          <div class="briefing-header">
+            <span class="briefing-icon" id="sc-icon">🚑</span>
+            <div>
+              <div class="briefing-title" id="sc-title">Kịch Bản 1: Cấp Cứu Khẩn Cấp</div>
+              <div class="briefing-sub" id="sc-sub">ĐH Bách Khoa ➔ BV Chợ Rẫy</div>
+            </div>
+          </div>
+          <p class="briefing-desc" id="sc-desc">Thời điểm 17:30 tan tầm chiều. Trục Lý Thường Kiệt kẹt cứng ở các ngã tư Tô Hiến Thành và 3 Tháng 2.</p>
+        </div>
+
+        <!-- Vehicle Priority Mode Selector -->
+        <div class="routing-section-label">CHẾ ĐỘ PHƯƠNG TIỆN / ƯU TIÊN:</div>
+        <div class="vehicle-mode-selector">
+          <button class="btn-vehicle active" data-mode="emergency">
+            <span>🚑</span> Cứu Thương
+          </button>
+          <button class="btn-vehicle" data-mode="car">
+            <span>🚗</span> Xe Cá Nhân
+          </button>
+          <button class="btn-vehicle" data-mode="bus">
+            <span>🚌</span> Xe Buýt / Vận Tải
+          </button>
+        </div>
+
+        <!-- Real-time Route Comparison Card -->
+        <div class="sim-results-card routing-comp-card">
+          <div class="sim-card-header">
+            <span class="sim-badge">ĐỐI CHIẾU 2 LỘ TRÌNH TẠI <span id="route-current-hour-label">17:30</span></span>
+          </div>
+
+          <div class="routes-side-by-side">
+            <!-- Left: Static Route -->
+            <div class="route-col static-col">
+              <div class="route-tag static-tag">🔴 LỘ TRÌNH CŨ (TĨNH)</div>
+              <div class="route-stat-item">
+                <span class="lbl">Quãng đường:</span>
+                <strong id="static-dist">1.9 km</strong>
+              </div>
+              <div class="route-stat-item">
+                <span class="lbl">Thời gian:</span>
+                <strong class="text-danger" id="static-time">27.8 phút</strong>
+              </div>
+              <div class="route-stat-item">
+                <span class="lbl">Tốc độ TB:</span>
+                <strong id="static-speed">4.1 km/h</strong>
+              </div>
+              <div class="route-stat-item">
+                <span class="lbl">Điểm nghẽn:</span>
+                <strong class="text-danger" id="static-bottlenecks">2 nút tê liệt</strong>
+              </div>
+            </div>
+
+            <!-- VS Divider -->
+            <div class="routes-vs">VS</div>
+
+            <!-- Right: Dynamic AI Route -->
+            <div class="route-col dynamic-col">
+              <div class="route-tag dynamic-tag">🟢 ĐỀ XUẤT AI (ĐỘNG)</div>
+              <div class="route-stat-item">
+                <span class="lbl">Quãng đường:</span>
+                <strong id="dynamic-dist">2.6 km</strong>
+              </div>
+              <div class="route-stat-item">
+                <span class="lbl">Thời gian:</span>
+                <strong class="text-success" id="dynamic-time">8.4 phút</strong>
+              </div>
+              <div class="route-stat-item">
+                <span class="lbl">Tốc độ TB:</span>
+                <strong class="text-success" id="dynamic-speed">18.6 km/h</strong>
+              </div>
+              <div class="route-stat-item">
+                <span class="lbl">Điểm nghẽn:</span>
+                <strong class="text-success" id="dynamic-bottlenecks">0 nút (Thoát kẹt)</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Delta Highlights -->
+          <div class="routing-highlights">
+            <div class="highlight-pill success" id="hl-time-saved">
+              ⏱️ TIẾT KIỆM: <strong>19.4 phút (-70%)</strong>
+            </div>
+            <div class="highlight-pill info" id="hl-co2-saved">
+              🌱 GIẢM PHÁT THẢI: <strong>-42% CO2</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Routing Strategy Explanation -->
+        <div class="strategy-callout" id="strategy-explanation">
+          <strong>Chiến Lược Phân Luồng AI:</strong>
+          <p id="strategy-text">Né ngã tư xung đột rẽ trái, phân luồng sang trục Thành Thái - Nguyễn Tri Phương có làn sóng xanh.</p>
+        </div>
+
+        <!-- Simulation Actions -->
+        <div class="routing-action-buttons">
+          <button class="btn btn-primary btn-full" id="btn-start-vehicle-sim">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Bắt Đầu Mô Phỏng Xe Chạy
+          </button>
+          <button class="btn btn-outline btn-full" id="btn-reset-route-view" style="margin-top: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            Xóa Lộ Trình / Đặt Lại
+          </button>
+        </div>
       </div>
     </aside>
   </main>

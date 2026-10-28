@@ -48,7 +48,8 @@ Bộ dữ liệu trong thư mục `final_lab` là dữ liệu thực tế về m
 | **Jupyter Notebook EDA** | `process_and_eda.ipynb` | Toàn bộ mã nguồn kiểm tra dữ liệu sơ bộ, tiền xử lý và 6 phân tích EDA chuyên sâu kèm biểu đồ. |
 | **Quyển Báo Cáo Tư Vấn** | `eda_report/Bao_Cao_Tu_Van_Chien_Luoc_Giao_Thong_TPHCM.md` | Báo cáo tư vấn chuyên sâu đệ trình Sở GTVT TP.HCM (kèm bản in HTML chất lượng cao). |
 | **Bộ Slide Thuyết Trình** | `slides/index.html` | Web Presentation tương tác trình chiếu, hỗ trợ phím mũi tên, lời thoại diễn giả (Speaker Notes) và chế độ Fullscreen. |
-| **Web Dashboard IOC Demo** | `demo/index.html` | Bản đồ số giao thông thời gian thực Leaflet Dark Mode, thanh trượt 24h, và bảng mô phỏng What-If tối ưu đèn AI thích ứng. |
+| **Web Dashboard IOC Demo** | `demo/index.html` | Bản đồ số giao thông thời gian thực Leaflet Dark Mode, thanh trượt 24h, Bảng mô phỏng What-If tối ưu đèn AI và **Hệ thống Mô phỏng Đề xuất Lộ trình Thông minh (Smart Routing Simulator)** với animation xe di chuyển đối chiếu trực quan. |
+| **Script sinh dữ liệu định tuyến** | `scripts/generate_routing_data.py` | Script Python tính toán các hành lang di chuyển và sinh 3 kịch bản mô phỏng tìm đường thực tế. |
 | **Script xử lý & xuất biểu đồ** | `scripts/prepare_data_and_charts.py` | Script Python tự động trích xuất dữ liệu mẫu và vẽ 7 bộ biểu đồ phân tích cho báo cáo. |
 
 ---
