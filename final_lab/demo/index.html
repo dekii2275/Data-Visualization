@@ -157,6 +157,14 @@
       <div class="map-floating-overlay top-left">
         <div class="overlay-glass-card">
           <div class="filter-row">
+            <label for="basemap-select">🗺️ Bản đồ nền:</label>
+            <select id="basemap-select" class="form-select">
+              <option value="osm" selected>🗺️ Đường Phố Thực Tế (OpenStreetMap)</option>
+              <option value="satellite">🛰️ Ảnh Vệ Tinh Thực Tế (Esri Satellite)</option>
+              <option value="dark">🌙 Bản Đồ Nền Tối (Dark Cyberpunk)</option>
+            </select>
+          </div>
+          <div class="filter-row">
             <label for="street-type-filter">Loại tuyến:</label>
             <select id="street-type-filter" class="form-select">
               <option value="all">Tất cả tuyến đường</option>

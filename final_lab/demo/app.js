@@ -24,6 +24,8 @@ const state = {
   activeTab: 'policy', // 'policy' | 'routing'
   activeScenarioIndex: 0,
   vehicleMode: 'emergency', // 'emergency' | 'car' | 'bus'
+  currentBasemap: 'osm',
+  basemapLayer: null,
   routingLayers: [],
   vehicleAnimation: {
     interval: null,
@@ -54,8 +56,43 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ==========================================================================
-// MAP INITIALIZATION (Leaflet + Dark Matter Tiles)
+// MAP INITIALIZATION (Real World Map Tiles)
 // ==========================================================================
+const BASEMAPS = {
+  osm: {
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    options: {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }
+  },
+  satellite: {
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    options: {
+      maxZoom: 19,
+      attribution: 'Tiles &copy; Esri &mdash; World Imagery'
+    }
+  },
+  dark: {
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    options: {
+      maxZoom: 19,
+      className: 'osm-dark-tiles',
+      attribution: '&copy; OpenStreetMap'
+    }
+  }
+};
+
+function setBasemap(type) {
+  if (state.basemapLayer) {
+    state.map.removeLayer(state.basemapLayer);
+  }
+  const conf = BASEMAPS[type] || BASEMAPS['osm'];
+  state.currentBasemap = type;
+  state.basemapLayer = L.tileLayer(conf.url, conf.options).addTo(state.map);
+  state.basemapLayer.bringToBack();
+}
+
 function initMap() {
   // Center on District 10 / Tan Binh / Central HCMC
   state.map = L.map('traffic-map', {
@@ -65,11 +102,8 @@ function initMap() {
     attributionControl: false
   });
 
-  // Dark Matter tiles for high-tech IOC aesthetic
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    maxZoom: 19,
-    subdomains: 'abcd'
-  }).addTo(state.map);
+  // Default to Real OpenStreetMap (Đường phố thực tế TP.HCM)
+  setBasemap('osm');
 
   // Zoom control in bottom left
   L.control.zoom({ position: 'bottomleft' }).addTo(state.map);
@@ -375,6 +409,14 @@ function setupEventListeners() {
       }
     });
   });
+
+  // Basemap switcher (Real OSM vs Satellite vs Dark)
+  const basemapSelect = document.getElementById('basemap-select');
+  if (basemapSelect) {
+    basemapSelect.addEventListener('change', (e) => {
+      setBasemap(e.target.value);
+    });
+  }
 
   // Street type filter
   document.getElementById('street-type-filter').addEventListener('change', (e) => {
