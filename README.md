@@ -1,16 +1,83 @@
 # Data Visualization
 
-Kho lưu trữ bài tập và đồ án môn học **Trực quan hóa Dữ liệu (Data Visualization)**.
+Kho bài thực hành và đồ án môn Trực quan hóa Dữ liệu. Đồ án cuối kỳ xây dựng dashboard mô phỏng giao thông TP.HCM từ dữ liệu quan sát, kèm notebook EDA, báo cáo và slide.
 
-## 📁 Cấu trúc thư mục
+## Cấu trúc
 
-* **`lab01/`**: Bài tập thực hành Lab 01.
-* **`lab02/`**: Bài tập thực hành Lab 02.
-* **`final_lab/`**: **Đồ án cuối kỳ - Đề án Điều hành Giao thông Thích ứng Thời gian thực TP. Hồ Chí Minh (HCMC Smart Traffic IOC & Digital Twin)**:
-  * [`final_lab/README.md`](final_lab/README.md): Hướng dẫn chi tiết đồ án và kịch bản đóng vai chuyên gia tư vấn.
-  * [`final_lab/minhanh_tonghop.md`](final_lab/minhanh_tonghop.md): Bản tổng hợp chi tiết bộ dữ liệu và các phát hiện then chốt.
-  * [`final_lab/process_and_eda.ipynb`](final_lab/process_and_eda.ipynb): Jupyter Notebook tiền xử lý dữ liệu và 6 phân tích EDA chuyên sâu.
-  * [`final_lab/eda_report/`](final_lab/eda_report/): Quyển Báo cáo Tư vấn Chiến lược Quản lý Giao thông TP.HCM (Markdown & bản in HTML tạp chí).
-  * [`final_lab/slides/`](final_lab/slides/): Bộ Slide thuyết trình tương tác trực tiếp trên web (hỗ trợ phím điều hướng & lời thoại diễn giả).
-  * [`final_lab/demo/`](final_lab/demo/): Ứng dụng Web Dashboard điều hành giao thông số (Leaflet Dark Mode, thanh trượt 24h & mô phỏng What-If).
-  * [`final_lab/scripts/`](final_lab/scripts/): Các script tiền xử lý và sinh biểu đồ tự động.
+```text
+lab01/, lab02/                 Bài thực hành và notebook
+final_lab/
+  data/                       Dữ liệu CSV dùng cho phân tích
+  scripts/                    Tiền xử lý, sinh biểu đồ và kịch bản định tuyến
+  demo/
+    index.html, style.css     Markup và giao diện dashboard
+    config.js, data.js        Cấu hình và tải dữ liệu API/JSON
+    app.js                    Bản đồ, tương tác và mô phỏng trên trình duyệt
+    traffic_data.json         Nguồn dữ liệu dùng chung cho static và Docker
+    backend/                  FastAPI: config, schemas, routers, services, crud, db
+    frontend/                 Dockerfile và cấu hình Nginx
+  eda_report/, slides/        Báo cáo và slide thuyết trình
+scripts/                      Công cụ cập nhật biểu đồ notebook
+tests/                       Kiểm thử API và tải dữ liệu frontend
+```
+
+## Chạy nhanh
+
+Yêu cầu Python 3.11+; Docker Compose nếu chạy đủ ba tầng.
+
+Chạy dashboard, slide và báo cáo tĩnh từ thư mục gốc:
+
+```bash
+python -m http.server 8080 --directory final_lab
+```
+
+Mở [dashboard](http://localhost:8080/demo/), [slide](http://localhost:8080/slides/) hoặc thư mục báo cáo tại `http://localhost:8080/eda_report/`. Dashboard dùng JSON tĩnh khi API không khả dụng; bản đồ nền và thư viện CDN vẫn cần mạng.
+
+Chạy Nginx, FastAPI và PostgreSQL:
+
+```bash
+cd final_lab/demo
+cp .env.example .env
+docker compose up -d --build
+```
+
+Mở [dashboard Docker](http://localhost:8080) và [Swagger UI](http://localhost:8080/docs). Xem [hướng dẫn ứng dụng](final_lab/demo/README.md) về cấu hình, API và chạy backend không dùng Docker.
+
+## Phân tích và tái tạo dữ liệu
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+jupyter lab
+```
+
+Các notebook chính: [Lab 01](lab01/process_and_eda.ipynb), [Lab 02](lab02/process_and_eda_v2.ipynb), [đồ án cuối kỳ](final_lab/process_and_eda.ipynb).
+
+```bash
+# Sinh biểu đồ và traffic_data.json; sau đó bổ sung kịch bản định tuyến.
+python final_lab/scripts/prepare_data_and_charts.py
+python final_lab/scripts/generate_routing_data.py
+
+# Cập nhật hai biểu đồ LOS và các cell tương ứng trong notebook.
+python scripts/update_eda_chart.py
+```
+
+Các lệnh trên ghi lại dữ liệu hoặc biểu đồ đầu ra. Chạy từ bất kỳ thư mục nào; đường dẫn đầu vào được tính từ vị trí script.
+
+## Kiểm tra mã nguồn
+
+```bash
+python -m pip install -r requirements-dev.txt
+ruff check .
+ruff format --check .
+python -m pytest -q
+node --test tests/test_data_client.cjs
+docker compose -f final_lab/demo/docker-compose.yml config --quiet
+```
+
+Node.js 22 dùng cho kiểm thử JavaScript; ứng dụng frontend không cần bước build. GitHub Actions chạy các kiểm tra trên khi push hoặc mở pull request. Dùng `ruff format .` để định dạng Python.
+
+Quy ước tổ chức mã nằm trong [AGENTS.md](AGENTS.md): router chỉ xử lý HTTP, service giữ nghiệp vụ, CRUD truy cập database, schema kiểm tra dữ liệu và config quản lý cấu hình. Tệp `.env`, database cục bộ và công cụ AI trên máy được bỏ qua bởi Git.
+
+Xem thêm [đồ án cuối kỳ](final_lab/README.md), [bản tổng hợp dữ liệu](final_lab/minhanh_tonghop.md) và [giấy phép](LICENSE).

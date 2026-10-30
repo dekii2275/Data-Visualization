@@ -51,8 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   console.log('[IOC] Initializing HCMC Traffic Intelligence System...');
   initMap();
   setupEventListeners();
-  await loadTrafficData();
-  updateDashboard(state.currentHour);
+  if (await loadTrafficData()) updateDashboard(state.currentHour);
 });
 
 // ==========================================================================
@@ -112,20 +111,27 @@ function initMap() {
 // ==========================================================================
 // LOAD DATA
 // ==========================================================================
+/** @returns {Promise<boolean>} Whether a usable dataset was loaded and rendered. */
 async function loadTrafficData() {
+  const statusPill = document.getElementById('backend-status-pill');
   try {
-    const res = await fetch('traffic_data.json');
-    if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-    state.data = await res.json();
-    console.log('[IOC] Traffic data loaded:', state.data);
-
+    const result = await TrafficDataClient.load();
+    state.data = result.data;
+    if (statusPill) {
+      statusPill.textContent = result.live ? 'API DOCKER LIVE' : 'LOCAL STANDALONE';
+      statusPill.classList.toggle('status-live', result.live);
+      statusPill.classList.toggle('status-local', !result.live);
+    }
     renderHotspots();
     renderSegments();
     populateHotspotsList();
     initRoutingSimulator();
-  } catch (err) {
-    console.error('[IOC] Failed to load traffic_data.json:', err);
-    alert('Không thể nạp dữ liệu traffic_data.json. Đang chạy trong môi trường cục bộ.');
+    return true;
+  } catch (error) {
+    console.error('[IOC] Failed to load traffic data:', error);
+    if (statusPill) statusPill.textContent = 'DATA UNAVAILABLE';
+    alert('Không thể nạp dữ liệu giao thông. Hãy chạy HTTP server và kiểm tra kết nối.');
+    return false;
   }
 }
 
@@ -199,9 +205,9 @@ function renderHotspots() {
 
     const marker = L.marker([hp.lat, hp.lng], { icon: pulseIcon });
     marker.bindPopup(`
-      <div style="font-family: var(--font-sans); color: #111; max-width: 220px;">
-        <h5 style="margin: 0 0 4px; font-size: 13px; color: #d32f2f;">🔥 ${hp.name}</h5>
-        <p style="margin: 0; font-size: 11px; color: #555;">${hp.desc}</p>
+      <div class="map-popup">
+        <h5 class="hotspot-popup-title">🔥 ${hp.name}</h5>
+        <p class="hotspot-popup-description">${hp.desc}</p>
       </div>
     `);
 
@@ -657,10 +663,10 @@ function renderActiveScenarioRoute() {
       });
       const m = L.marker(bn.coords, { icon: hazardIcon });
       m.bindPopup(`
-        <div style="font-family: var(--font-sans); color: #111; max-width: 220px;">
-          <h5 style="margin: 0 0 4px; color: #dc2626; font-size: 12px;">⚠️ NÚT THẮT TÊ LIỆT</h5>
-          <strong style="font-size: 11px;">${bn.name}</strong>
-          <p style="margin: 4px 0 0; font-size: 10.5px; color: #555;">Cấp: <strong>LOS ${bn.los}</strong> | Tốc độ bò: <strong>${bn.speed} km/h</strong><br/>${bn.desc}</p>
+        <div class="map-popup">
+          <h5 class="bottleneck-popup-title">⚠️ NÚT THẮT TÊ LIỆT</h5>
+          <strong class="bottleneck-popup-name">${bn.name}</strong>
+          <p class="bottleneck-popup-description">Cấp: <strong>LOS ${bn.los}</strong> | Tốc độ bò: <strong>${bn.speed} km/h</strong><br/>${bn.desc}</p>
         </div>
       `);
       m.addTo(state.map);

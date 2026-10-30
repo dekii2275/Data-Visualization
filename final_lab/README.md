@@ -16,18 +16,18 @@
 ## 📦 TRỌN BỘ 3 SẢN PHẨM ĐẦU RA (COMPLETED DELIVERABLES)
 
 ### 📄 Sản phẩm 1: Quyển Báo Cáo Tư Vấn (Executive Consulting Report)
-* **Vị trí lưu trữ:** [final_lab/eda_report/](file:///home/dekii2275/Data-Visualization/final_lab/eda_report)
-* **Tài liệu Markdown:** [Bao_Cao_Tu_Van_Chien_Luoc_Giao_Thong_TPHCM.md](file:///home/dekii2275/Data-Visualization/final_lab/eda_report/Bao_Cao_Tu_Van_Chien_Luoc_Giao_Thong_TPHCM.md)
-* **Tài liệu In ấn / PDF Tạp chí Đẳng cấp:** [Bao_Cao_Tu_Van_Chien_Luoc_Giao_Thong_TPHCM.html](file:///home/dekii2275/Data-Visualization/final_lab/eda_report/Bao_Cao_Tu_Van_Chien_Luoc_Giao_Thong_TPHCM.html)
+* **Vị trí lưu trữ:** [final_lab/eda_report/](eda_report)
+* **Tài liệu Markdown:** [Bao_Cao_Tu_Van_Chien_Luoc_Giao_Thong_TPHCM.md](eda_report/Bao_Cao_Tu_Van_Chien_Luoc_Giao_Thong_TPHCM.md)
+* **Tài liệu In ấn / PDF Tạp chí Đẳng cấp:** [Bao_Cao_Tu_Van_Chien_Luoc_Giao_Thong_TPHCM.html](eda_report/Bao_Cao_Tu_Van_Chien_Luoc_Giao_Thong_TPHCM.html)
   *(Mở trên trình duyệt và nhấn `Ctrl + P` để lưu thành bản PDF chuyên nghiệp).*
 * **Nội dung:** 6 phần đầy đủ từ Thư đệ trình, Tóm tắt điều hành, 4 trụ cột bằng chứng định lượng, Phân tích nguyên nhân cốt lõi, Lộ trình 3 giai đoạn và Đánh giá hiệu quả kinh tế xã hội (Social ROI).
 
 ---
 
 ### 🖥️ Sản phẩm 2: Bộ Slide Thuyết Trình Đẳng Cấp (Slide Deck & Speaker Notes)
-* **Vị trí lưu trữ:** [final_lab/slides/](file:///home/dekii2275/Data-Visualization/final_lab/slides)
-* **Nội dung Slide & Lời thoại Diễn giả (Speaker Notes):** [Slide_Thuyet_Trinh_Giao_Thong_TPHCM.md](file:///home/dekii2275/Data-Visualization/final_lab/slides/Slide_Thuyet_Trinh_Giao_Thong_TPHCM.md)
-* **Web Presentation Tương Tác Trình Chiếu:** [final_lab/slides/index.html](file:///home/dekii2275/Data-Visualization/final_lab/slides/index.html)
+* **Vị trí lưu trữ:** [final_lab/slides/](slides)
+* **Nội dung Slide & Lời thoại Diễn giả (Speaker Notes):** [Slide_Thuyet_Trinh_Giao_Thong_TPHCM.md](slides/Slide_Thuyet_Trinh_Giao_Thong_TPHCM.md)
+* **Web Presentation Tương Tác Trình Chiếu:** [final_lab/slides/index.html](slides/index.html)
   * Điều hướng bằng phím mũi tên `⬅` và `➔`.
   * Nút **🎙️ Lời Thoại Diễn Giả (Speaker Notes)** để luyện tập thuyết trình trôi chảy từng câu từ.
   * Hỗ trợ chế độ toàn màn hình (Fullscreen Presentation).
@@ -35,8 +35,13 @@
 ---
 
 ### 🚀 Sản phẩm 3: Code Demo Web Dashboard (Smart Traffic Digital Twin IOC)
-* **Vị trí lưu trữ:** [final_lab/demo/](file:///home/dekii2275/Data-Visualization/final_lab/demo)
-* **Giao diện:** [final_lab/demo/index.html](file:///home/dekii2275/Data-Visualization/final_lab/demo/index.html)
+* **Vị trí lưu trữ:** [final_lab/demo/](demo)
+* **Giao diện:** [final_lab/demo/index.html](demo/index.html)
+* **Kiến trúc Docker 3-Tier (Cohere Standard):**
+  * **Frontend:** Nginx Alpine (Reverse proxy `/api/*` và phục vụ Web Dashboard tại port `8080`).
+  * **Backend:** FastAPI Clean Architecture (Pydantic schemas, routers, services, CRUD tại port `8001`).
+  * **Database:** PostgreSQL 16 Alpine với tự động nạp dữ liệu (Auto-seeding) tại port `5433`.
+  * **Lệnh khởi chạy:** `cd final_lab/demo && docker compose up -d --build`
 * **Tính năng đột phá gây ấn tượng mạnh (WOW Factors):**
   1. **Bản đồ giao thông Leaflet Dark Mode:** 450 phân đoạn đường TP.HCM được vẽ chuẩn xác bằng Polyline, tự động đổi màu theo 6 cấp phục vụ LOS (A xanh lá $\rightarrow$ F tím tê liệt).
   2. **Thanh trượt thời gian 24 giờ & Nút Tự động phát (24h Timeline & Playback):** Tự động phát diễn biến kẹt xe theo thời gian trong ngày với 3 mức tốc độ (1x, 2x, 4x).
@@ -47,7 +52,7 @@
 
 ## ⚡ HƯỚNG DẪN CHẠY VÀ XEM TRỰC TIẾP TRÊN TRÌNH DUYỆT
 
-Máy chủ nội bộ đang chạy sẵn phục vụ toàn bộ thư mục `final_lab`:
+Khởi chạy HTTP server từ thư mục gốc để xem các tài liệu tĩnh (cách này dùng JSON dự phòng, không khởi chạy backend):
 
 | Sản phẩm | Địa chỉ URL trên trình duyệt |
 | :--- | :--- |
@@ -55,7 +60,7 @@ Máy chủ nội bộ đang chạy sẵn phục vụ toàn bộ thư mục `fina
 | **Slide Thuyết Trình Tương Tác** | `http://localhost:8080/slides/` |
 | **Quyển Báo Cáo Tư Vấn (HTML In Ấn)** | `http://localhost:8080/eda_report/Bao_Cao_Tu_Van_Chien_Luoc_Giao_Thong_TPHCM.html` |
 
-Nếu cần khởi động lại máy chủ bất cứ lúc nào từ thư mục gốc dự án:
+Chạy lệnh sau từ thư mục gốc dự án:
 ```bash
 python3 -m http.server 8080 --directory final_lab
 ```

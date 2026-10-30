@@ -1,0 +1,68 @@
+services:
+  # ============================================================================
+  # 1. DATABASE TIER: PostgreSQL 16
+  # ============================================================================
+  db:
+    image: postgres:16-alpine
+    container_name: hcmc_traffic_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-traffic_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-traffic_password}
+      POSTGRES_DB: ${POSTGRES_DB:-hcmc_traffic}
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-traffic_user} -d ${POSTGRES_DB:-hcmc_traffic}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - traffic_net
+
+  # ============================================================================
+  # 2. BACKEND TIER: FastAPI Clean Architecture (Cohere Standard)
+  # ============================================================================
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: hcmc_traffic_backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-traffic_user}:${POSTGRES_PASSWORD:-traffic_password}@db:5432/${POSTGRES_DB:-hcmc_traffic}
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      SEED_DATA_PATH: /app/traffic_data.json
+    ports:
+      - "${BACKEND_PORT:-8001}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - traffic_net
+
+  # ============================================================================
+  # 3. FRONTEND TIER: Nginx Reverse Proxy & Web Dashboard IOC
+  # ============================================================================
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: hcmc_traffic_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    depends_on:
+      - backend
+    networks:
+      - traffic_net
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  traffic_net:
+    driver: bridge

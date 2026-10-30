@@ -6,10 +6,10 @@
   <title>HCMC Smart Traffic IOC - Hệ Thống Điều Hành & Mô Phỏng Giao Thông Thích Ứng</title>
   <meta name="description" content="Trung tâm điều hành và mô phỏng giao thông thông minh TP. Hồ Chí Minh - Nền tảng tư vấn giải pháp thích ứng giải cứu điểm nghẽn đô thị.">
   
-  <!-- Google Fonts -->
+  <!-- Modern Professional Typography (WCAG AA High-Legibility) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -22,19 +22,21 @@
   <header id="main-header" class="ioc-header">
     <div class="header-brand">
       <div class="brand-badge">
-        <span class="pulsing-dot"></span>
+        <span class="status-dot"></span>
         <span class="brand-tag">IOC URBAN AI</span>
       </div>
       <div class="brand-text">
-        <h1>HCMC TRAFFIC INTELLIGENCE & DIGITAL TWIN</h1>
-        <p class="brand-sub">Đề Án Điều Hành Giao Thông Thích Ứng Thời Gian Thực | Báo Cáo Tư Vấn Sở GTVT TP.HCM</p>
+        <h1>HCMC TRAFFIC DIGITAL TWIN</h1>
+        <p class="brand-sub">Điều Hành Giao Thông Thích Ứng Thời Gian Thực &bull; Tư Vấn Sở GTVT TP.HCM</p>
       </div>
     </div>
 
     <!-- Center Control Pill: Time & Peak Indicator -->
     <div class="header-status-pill" id="header-status-pill">
       <div class="status-indicator">
-        <span class="indicator-icon" id="peak-indicator-icon">🚦</span>
+        <span class="indicator-icon" id="peak-indicator-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
+        </span>
         <div class="status-texts">
           <span class="status-label" id="current-period-label">CAO ĐIỂM CHIỀU (17:30)</span>
           <span class="status-detail" id="current-stress-level">Áp Lực Kẹt Xe Cực Đại: 38.2%</span>
@@ -44,6 +46,7 @@
 
     <!-- Right Actions -->
     <div class="header-actions">
+      <span class="live-pill" id="backend-status-pill" title="Trạng thái nguồn dữ liệu: Docker API hoặc Local Static File">CONNECTING...</span>
       <div class="system-metric">
         <span class="metric-label">CẢM BIẾN GIÁM SÁT</span>
         <span class="metric-val" id="total-segments-badge">450 Đoạn Tuyến</span>
@@ -69,7 +72,7 @@
       <div class="panel-header">
         <div class="panel-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-          <h3>CHỈ SỐ TỔNG THỂ</h3>
+          <h2>CHỈ SỐ TỔNG THỂ</h2>
         </div>
         <span class="live-pill">LIVE 24H</span>
       </div>
@@ -83,7 +86,7 @@
             <span class="kpi-delta up" id="kpi-severe-delta">▲ +14.6%</span>
           </div>
           <div class="kpi-progress">
-            <div class="kpi-progress-bar bg-danger" id="kpi-severe-bar" style="width: 38.2%;"></div>
+            <div class="kpi-progress-bar bg-danger" id="kpi-severe-bar"></div>
           </div>
           <span class="kpi-note" id="kpi-severe-sub">172 / 450 đoạn rơi vào tê liệt</span>
         </div>
@@ -95,7 +98,7 @@
             <span class="kpi-unit">km/h</span>
           </div>
           <div class="kpi-progress">
-            <div class="kpi-progress-bar bg-warning" id="kpi-speed-bar" style="width: 28%;"></div>
+            <div class="kpi-progress-bar bg-warning" id="kpi-speed-bar"></div>
           </div>
           <span class="kpi-note">Tốc độ bò chậm dưới ngưỡng tối ưu</span>
         </div>
@@ -123,12 +126,12 @@
       <div class="panel-section">
         <div class="section-title">Cơ Cấu Cấp Độ Phục Vụ (LOS Profile)</div>
         <div class="los-stacked-bar">
-          <div class="los-segment bg-los-a" id="bar-los-a" style="width: 35%;" title="LOS A: Thông suốt"></div>
-          <div class="los-segment bg-los-b" id="bar-los-b" style="width: 15%;" title="LOS B: Ổn định"></div>
-          <div class="los-segment bg-los-c" id="bar-los-c" style="width: 12%;" title="LOS C: Chấp nhận"></div>
-          <div class="los-segment bg-los-d" id="bar-los-d" style="width: 10%;" title="LOS D: Tiệm cận giới hạn"></div>
-          <div class="los-segment bg-los-e" id="bar-los-e" style="width: 14%;" title="LOS E: Kẹt xe"></div>
-          <div class="los-segment bg-los-f" id="bar-los-f" style="width: 14%;" title="LOS F: Tê liệt hoàn toàn"></div>
+          <div class="los-segment bg-los-a" id="bar-los-a" title="LOS A: Thông suốt"></div>
+          <div class="los-segment bg-los-b" id="bar-los-b" title="LOS B: Ổn định"></div>
+          <div class="los-segment bg-los-c" id="bar-los-c" title="LOS C: Chấp nhận"></div>
+          <div class="los-segment bg-los-d" id="bar-los-d" title="LOS D: Tiệm cận giới hạn"></div>
+          <div class="los-segment bg-los-e" id="bar-los-e" title="LOS E: Kẹt xe"></div>
+          <div class="los-segment bg-los-f" id="bar-los-f" title="LOS F: Tê liệt hoàn toàn"></div>
         </div>
         <div class="los-legend-grid">
           <div class="legend-item"><span class="dot bg-los-a"></span>A (<span id="pct-los-a">35%</span>)</div>
@@ -157,11 +160,11 @@
       <div class="map-floating-overlay top-left">
         <div class="overlay-glass-card">
           <div class="filter-row">
-            <label for="basemap-select">🗺️ Bản đồ nền:</label>
+            <label for="basemap-select">Bản đồ nền:</label>
             <select id="basemap-select" class="form-select">
-              <option value="osm" selected>🗺️ Đường Phố Thực Tế (OpenStreetMap)</option>
-              <option value="satellite">🛰️ Ảnh Vệ Tinh Thực Tế (Esri Satellite)</option>
-              <option value="dark">🌙 Bản Đồ Nền Tối (Dark Cyberpunk)</option>
+              <option value="osm" selected>Đường Phố Thực Tế (OpenStreetMap)</option>
+              <option value="satellite">Ảnh Vệ Tinh (Esri Imagery)</option>
+              <option value="dark">Bản Đồ Nền Tối (Dark Operations)</option>
             </select>
           </div>
           <div class="filter-row">
@@ -197,11 +200,11 @@
       </div>
 
       <!-- Segment Detail Popover Modal -->
-      <div class="segment-modal" id="segment-modal" style="display: none;">
+      <div class="segment-modal" id="segment-modal">
         <button class="modal-close" id="btn-close-modal">✕</button>
         <div class="modal-header">
           <span class="badge badge-type" id="modal-street-type">Primary</span>
-          <h4 id="modal-street-name">Đường Lý Thường Kiệt</h4>
+          <h3 id="modal-street-name">Đường Lý Thường Kiệt</h3>
         </div>
         <div class="modal-body">
           <div class="metric-row">
@@ -232,7 +235,7 @@
       <div class="panel-header">
         <div class="panel-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-          <h3 id="panel-right-title">MÔ PHỎNG GIẢI PHÁP CAN THIỆP</h3>
+          <h2 id="panel-right-title">MÔ PHỎNG GIẢI PHÁP CAN THIỆP</h2>
         </div>
         <span class="badge-role" id="panel-right-badge">TƯ VẤN SỞ GTVT</span>
       </div>
@@ -333,7 +336,7 @@
 
         <!-- Call to Action Box for Consultation -->
         <div class="cta-box">
-          <h4>ĐỀ XUẤT HÀNH ĐỘNG CỦA CHUYÊN GIA:</h4>
+          <h3>ĐỀ XUẤT HÀNH ĐỘNG CỦA CHUYÊN GIA:</h3>
           <p>Phê duyệt gói thí điểm 06 tháng tại Cụm Quận 10 - Tân Bình với kinh phí đầu tư cảm biến và bộ điều khiển thích ứng 3.2 tỷ VNĐ. Tỷ lệ hoàn vốn xã hội (Social ROI) đạt sau 45 ngày vận hành.</p>
           <button class="btn btn-success btn-full" id="btn-export-proposal">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
@@ -343,7 +346,7 @@
       </div>
 
       <!-- TAB 2: SMART ROUTING SIMULATOR -->
-      <div id="tab-content-routing" class="tab-pane" style="display: none;">
+      <div id="tab-content-routing" class="tab-pane">
         <div class="sim-intro">
           Mô phỏng đối chiếu song song: Lộ trình <strong>Dijkstra tĩnh</strong> (đường ngắn nhất theo km) vs <strong>Lộ trình thích ứng AI</strong> (tối ưu hóa thời gian theo dữ liệu kẹt xe 24h).
         </div>
@@ -357,7 +360,9 @@
         <!-- Scenario Context Briefing -->
         <div class="scenario-briefing" id="scenario-briefing">
           <div class="briefing-header">
-            <span class="briefing-icon" id="sc-icon">🚑</span>
+            <span class="briefing-icon" id="sc-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+            </span>
             <div>
               <div class="briefing-title" id="sc-title">Kịch Bản 1: Cấp Cứu Khẩn Cấp</div>
               <div class="briefing-sub" id="sc-sub">ĐH Bách Khoa ➔ BV Chợ Rẫy</div>
@@ -456,7 +461,7 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             Bắt Đầu Mô Phỏng Xe Chạy
           </button>
-          <button class="btn btn-outline btn-full" id="btn-reset-route-view" style="margin-top: 8px;">
+          <button class="btn btn-outline btn-full" id="btn-reset-route-view">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
             Xóa Lộ Trình / Đặt Lại
           </button>
@@ -481,11 +486,11 @@
     <!-- Timeline Slider with hour markers -->
     <div class="slider-wrapper">
       <div class="timeline-peak-bands">
-        <div class="band band-night" style="left: 0%; width: 25%;">Đêm (0h-6h)</div>
-        <div class="band band-morning-peak" style="left: 27%; width: 10.5%;">Cao Điểm Sáng</div>
-        <div class="band band-noon" style="left: 37.5%; width: 31.25%;">Trưa / Chiều</div>
-        <div class="band band-evening-peak" style="left: 68.75%; width: 12.5%;">Cao Điểm Chiều (Tối đa)</div>
-        <div class="band band-late" style="left: 81.25%; width: 18.75%;">Tối muộn</div>
+        <div class="band band-night">Đêm (0h-6h)</div>
+        <div class="band band-morning-peak">Cao Điểm Sáng</div>
+        <div class="band band-noon">Trưa / Chiều</div>
+        <div class="band band-evening-peak">Cao Điểm Chiều (Tối đa)</div>
+        <div class="band band-late">Tối muộn</div>
       </div>
       <input type="range" id="timeline-slider" min="0" max="23.5" step="0.5" value="17.5" class="time-slider">
       <div class="timeline-ticks">
@@ -516,6 +521,8 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   
   <!-- App JS -->
+  <script src="config.js"></script>
+  <script src="data.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

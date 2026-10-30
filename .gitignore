@@ -216,3 +216,15 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local tooling, private environment variants, and development databases
+.agent/
+.agents
+.env.*
+!.env.example
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+node_modules/
+.DS_Store
