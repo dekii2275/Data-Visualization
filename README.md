@@ -7,11 +7,13 @@ Kho bài thực hành và đồ án môn Trực quan hóa Dữ liệu. Đồ án
 ```text
 lab01/, lab02/                 Bài thực hành và notebook
 final_lab/
-  data/                       Dữ liệu CSV dùng cho phân tích
+  data/raw/                   Dữ liệu CSV gốc dùng cho phân tích
   scripts/                    Tiền xử lý, sinh biểu đồ và kịch bản định tuyến
   demo/
     index.html, style.css     Markup và giao diện dashboard
     config.js, data.js        Cấu hình và tải dữ liệu API/JSON
+    flow-model.js             Hình học và tính toán dòng xe
+    vehicle-flow.js           Vẽ dòng xe bằng canvas
     app.js                    Bản đồ, tương tác và mô phỏng trên trình duyệt
     traffic_data.json         Nguồn dữ liệu dùng chung cho static và Docker
     backend/                  FastAPI: config, schemas, routers, services, crud, db
@@ -65,6 +67,12 @@ python scripts/update_eda_chart.py
 
 Các lệnh trên ghi lại dữ liệu hoặc biểu đồ đầu ra. Chạy từ bất kỳ thư mục nào; đường dẫn đầu vào được tính từ vị trí script.
 
+## Dữ liệu đi kèm GitHub
+
+Toàn bộ 7 CSV trong `lab01/data/raw/`, `lab02/data/raw/`, `final_lab/data/raw/` và JSON phục vụ dashboard đều được lưu trực tiếp trong Git. Không cần tải dataset riêng sau khi clone. Xem [danh mục dữ liệu](data-manifest.json) và [mô tả dữ liệu giao thông](final_lab/data/README.md).
+
+`python scripts/validate_data.py` kiểm tra danh mục, kích thước, SHA-256 và cấu trúc dữ liệu. Sau khi chủ động thay đổi dataset, chạy `python scripts/validate_data.py --write` rồi commit cả data lẫn manifest. JSON đã xử lý được xuất tại `final_lab/demo/traffic_data.json` để dùng chung cho bản tĩnh và Docker.
+
 ## Kiểm tra mã nguồn
 
 ```bash
@@ -72,7 +80,8 @@ python -m pip install -r requirements-dev.txt
 ruff check .
 ruff format --check .
 python -m pytest -q
-node --test tests/test_data_client.cjs
+python scripts/validate_data.py
+node --test tests/*.cjs
 docker compose -f final_lab/demo/docker-compose.yml config --quiet
 ```
 

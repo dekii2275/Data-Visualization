@@ -17,7 +17,7 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="flow-view">
   <!-- Header / Top Bar -->
   <header id="main-header" class="ioc-header">
     <div class="header-brand">
@@ -26,8 +26,8 @@
         <span class="brand-tag">IOC URBAN AI</span>
       </div>
       <div class="brand-text">
-        <h1>HCMC TRAFFIC DIGITAL TWIN</h1>
-        <p class="brand-sub">Điều Hành Giao Thông Thích Ứng Thời Gian Thực &bull; Tư Vấn Sở GTVT TP.HCM</p>
+        <h1>Dòng xe trong ngày</h1>
+        <p class="brand-sub">Mô phỏng trên những đoạn đường có dữ liệu tại TP.HCM</p>
       </div>
     </div>
 
@@ -46,6 +46,7 @@
 
     <!-- Right Actions -->
     <div class="header-actions">
+      <button class="btn btn-outline" id="btn-toggle-tools" aria-expanded="false" aria-controls="panel-analytics panel-simulation">Công cụ khác</button>
       <span class="live-pill" id="backend-status-pill" title="Trạng thái nguồn dữ liệu: Docker API hoặc Local Static File">CONNECTING...</span>
       <div class="system-metric">
         <span class="metric-label">CẢM BIẾN GIÁM SÁT</span>
@@ -153,8 +154,39 @@
     </aside>
 
     <!-- Center: Interactive Map Container -->
-    <section class="panel-center">
+    <section class="panel-center" aria-label="Mô phỏng dòng xe theo thời gian">
+      <div class="flow-toolbar">
+        <div class="flow-selectors">
+          <div class="flow-field">
+            <label for="flow-area-select">Khu vực</label>
+            <select id="flow-area-select" class="form-select"></select>
+          </div>
+          <div class="flow-field flow-road-field">
+            <label for="flow-road-select">Tuyến đường</label>
+            <select id="flow-road-select" class="form-select"></select>
+          </div>
+          <button class="btn btn-outline" id="btn-flow-reset">Về khu vực đang xem</button>
+        </div>
+        <dl class="flow-metrics">
+          <div><dt>Đoạn đang xem</dt><dd id="flow-segment-count">—</dd></div>
+          <div><dt>Ùn tắc (LOS E–F)</dt><dd id="flow-severe-count">—</dd></div>
+          <div><dt>Tốc độ mô phỏng</dt><dd><span id="flow-speed">—</span> <span class="flow-unit">km/h</span></dd></div>
+        </dl>
+      </div>
       <div id="traffic-map" class="map-view"></div>
+      <div class="flow-empty" id="flow-empty" role="status" hidden>Không có đoạn đường hợp lệ trong vùng này. Hãy chọn khu vực khác.</div>
+      <div class="flow-caption">
+        <div class="flow-caption-row">
+          <span class="flow-legend-item"><i class="flow-swatch flow-swatch-free"></i>Thông thoáng</span>
+          <span class="flow-legend-item"><i class="flow-swatch flow-swatch-slow"></i>Chậm</span>
+          <span class="flow-legend-item"><i class="flow-swatch flow-swatch-congested"></i>Ùn tắc</span>
+          <span class="flow-legend-item"><i class="flow-swatch flow-swatch-gridlock"></i>Kẹt nặng</span>
+        </div>
+        <details class="flow-method">
+          <summary>Xe minh họa từ LOS theo giờ · Cách mô phỏng</summary>
+          <p>Tốc độ và khoảng cách giữa các xe được quy ước theo mức LOS của từng đoạn đường ở giờ đang chọn. Mỗi xe lặp lại trên đoạn có dữ liệu; vị trí, chiều chạy và số xe không phải quan sát thực tế hay hành trình xuyên mạng đường. Chuyển động được tăng tốc để dễ theo dõi.</p>
+        </details>
+      </div>
 
       <!-- Map Floating Overlay Controls -->
       <div class="map-floating-overlay top-left">
@@ -266,7 +298,7 @@
               <div class="policy-desc">Tự động tăng pha đèn xanh theo độ dài hàng đợi cảm biến tại 8 giao lộ chính Quận 10.</div>
             </div>
             <label class="switch">
-              <input type="checkbox" id="toggle-sim-adaptive" checked>
+              <input type="checkbox" id="toggle-sim-adaptive">
               <span class="slider"></span>
             </label>
           </div>
@@ -277,7 +309,7 @@
               <div class="policy-desc">Thiết lập làn sóng xanh (Tidal Flow) trên trục Lý Thường Kiệt và Tô Hiến Thành từ 16h30-19h30.</div>
             </div>
             <label class="switch">
-              <input type="checkbox" id="toggle-sim-tidal" checked>
+              <input type="checkbox" id="toggle-sim-tidal">
               <span class="slider"></span>
             </label>
           </div>
@@ -473,26 +505,27 @@
   <!-- Bottom Timeline & Playback Controller -->
   <footer class="ioc-timeline-footer" id="timeline-footer">
     <div class="timeline-controls">
-      <button class="btn-play" id="btn-play-pause" title="Tự động phát chu kỳ 24 giờ">
+      <button class="btn-play" id="btn-play-pause" title="Phát hoặc tạm dừng dòng xe và chu kỳ 24 giờ" aria-label="Phát dòng xe và chu kỳ 24 giờ" aria-pressed="false">
         <svg id="play-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
       </button>
 
       <div class="time-display">
-        <span class="time-clock" id="clock-display">17:30</span>
-        <span class="time-daytype" id="daytype-display">NGÀY ĐI LÀM (THỨ 2 - THỨ 6)</span>
+        <span class="time-clock" id="clock-display">07:00</span>
+        <span class="time-daytype" id="daytype-display">CHU KỲ 24 GIỜ</span>
+        <span class="flow-playback-state" id="flow-playback-state" role="status">Đã tạm dừng</span>
       </div>
     </div>
 
     <!-- Timeline Slider with hour markers -->
     <div class="slider-wrapper">
       <div class="timeline-peak-bands">
-        <div class="band band-night">Đêm (0h-6h)</div>
-        <div class="band band-morning-peak">Cao Điểm Sáng</div>
-        <div class="band band-noon">Trưa / Chiều</div>
-        <div class="band band-evening-peak">Cao Điểm Chiều (Tối đa)</div>
-        <div class="band band-late">Tối muộn</div>
+        <div class="band band-night">Đêm</div>
+        <div class="band band-morning-peak">Cao điểm sáng</div>
+        <div class="band band-noon">Ban ngày</div>
+        <div class="band band-evening-peak">Cao điểm chiều</div>
+        <div class="band band-late">Tối</div>
       </div>
-      <input type="range" id="timeline-slider" min="0" max="23.5" step="0.5" value="17.5" class="time-slider">
+      <input type="range" id="timeline-slider" min="0" max="23.5" step="0.5" value="7" class="time-slider" aria-label="Giờ mô phỏng trong ngày">
       <div class="timeline-ticks">
         <span>00h</span>
         <span>03h</span>
@@ -510,7 +543,7 @@
 
     <!-- Play Speed Select -->
     <div class="speed-controls">
-      <span class="speed-lbl">TỐC ĐỘ:</span>
+      <span class="speed-lbl">PHÁT NGÀY:</span>
       <button class="btn-speed active" data-speed="1">1x</button>
       <button class="btn-speed" data-speed="2">2x</button>
       <button class="btn-speed" data-speed="4">4x</button>
@@ -523,6 +556,8 @@
   <!-- App JS -->
   <script src="config.js"></script>
   <script src="data.js"></script>
+  <script src="flow-model.js"></script>
+  <script src="vehicle-flow.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

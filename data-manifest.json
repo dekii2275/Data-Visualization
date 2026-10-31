@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "files": [
+    {
+      "path": "final_lab/data/raw/nodes.csv",
+      "bytes": 19444470,
+      "sha256": "f405138088328c60208a484f9215e224610525347b46bb5bdea9a82fde6d326d",
+      "encoding": "utf-8-sig",
+      "rows": 577967,
+      "columns": [
+        "_id",
+        "long",
+        "lat"
+      ]
+    },
+    {
+      "path": "final_lab/data/raw/segment_status.csv",
+      "bytes": 3579383,
+      "sha256": "c7338da7648d43628044a2d1458d2639411fff5eb85ec599b0bbc2b2554af678",
+      "encoding": "utf-8-sig",
+      "rows": 90938,
+      "columns": [
+        "_id",
+        "updated_at",
+        "segment_id",
+        "velocity"
+      ]
+    },
+    {
+      "path": "final_lab/data/raw/segments.csv",
+      "bytes": 10287487,
+      "sha256": "ffca2198455225baed8dd59e9ca6123779e16d9d55f50453bba3579ba67c03aa",
+      "encoding": "utf-8-sig",
+      "rows": 84633,
+      "columns": [
+        "_id",
+        "created_at",
+        "updated_at",
+        "s_node_id",
+        "e_node_id",
+        "length",
+        "street_id",
+        "max_velocity",
+        "street_level",
+        "street_name",
+        "street_type"
+      ]
+    },
+    {
+      "path": "final_lab/data/raw/streets.csv",
+      "bytes": 201060,
+      "sha256": "a4c565f89e16ae3cd3c801aa00fdc537cee0454bd22506cda732d4ad6d794664",
+      "encoding": "utf-8-sig",
+      "rows": 5553,
+      "columns": [
+        "_id",
+        "level",
+        "max_velocity",
+        "name",
+        "type"
+      ]
+    },
+    {
+      "path": "final_lab/data/raw/train.csv",
+      "bytes": 4989743,
+      "sha256": "c42bc62d368acc047537bfdee1f8b9bb22f24500dcdcaffb7d2b0c69e06482b1",
+      "encoding": "utf-8-sig",
+      "rows": 33441,
+      "columns": [
+        "_id",
+        "segment_id",
+        "date",
+        "weekday",
+        "period",
+        "LOS",
+        "s_node_id",
+        "e_node_id",
+        "length",
+        "street_id",
+        "max_velocity",
+        "street_level",
+        "street_name",
+        "street_type",
+        "long_snode",
+        "lat_snode",
+        "long_enode",
+        "lat_enode"
+      ]
+    },
+    {
+      "path": "final_lab/demo/traffic_data.json",
+      "bytes": 331951,
+      "sha256": "d3c3582cdcb30ad43285fc0b27983e45ec5fbd1d8bc26b8a88e734a715cfcd32",
+      "segments": 450
+    },
+    {
+      "path": "lab01/data/raw/SeoulBikeData.csv",
+      "bytes": 595405,
+      "sha256": "0ceeae88d0f6486da38bf57a9a58f5f78d17e3ce36bc6836c6bf8e9ac13fa8cc",
+      "encoding": "cp949",
+      "rows": 8760,
+      "columns": [
+        "Date",
+        "Rented Bike Count",
+        "Hour",
+        "Temperature(캜)",
+        "Humidity(%)",
+        "Wind speed (m/s)",
+        "Visibility (10m)",
+        "Dew point temperature(캜)",
+        "Solar Radiation (MJ/m2)",
+        "Rainfall(mm)",
+        "Snowfall (cm)",
+        "Seasons",
+        "Holiday",
+        "Functioning Day"
+      ]
+    },
+    {
+      "path": "lab02/data/raw/SeoulBikeData.csv",
+      "bytes": 595405,
+      "sha256": "0ceeae88d0f6486da38bf57a9a58f5f78d17e3ce36bc6836c6bf8e9ac13fa8cc",
+      "encoding": "cp949",
+      "rows": 8760,
+      "columns": [
+        "Date",
+        "Rented Bike Count",
+        "Hour",
+        "Temperature(캜)",
+        "Humidity(%)",
+        "Wind speed (m/s)",
+        "Visibility (10m)",
+        "Dew point temperature(캜)",
+        "Solar Radiation (MJ/m2)",
+        "Rainfall(mm)",
+        "Snowfall (cm)",
+        "Seasons",
+        "Holiday",
+        "Functioning Day"
+      ]
+    }
+  ]
+}

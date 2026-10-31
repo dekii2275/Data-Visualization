@@ -13,7 +13,7 @@ import pandas as pd
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DEMO_DIR = BASE_DIR / "demo"
-DATA_DIR = BASE_DIR / "data"
+DATA_DIR = BASE_DIR / "data" / "raw"
 
 
 def build_corridor_path(

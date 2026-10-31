@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "final_lab" / "data"
+DATA_DIR = BASE_DIR / "final_lab" / "data" / "raw"
 REPORT_ASSETS = BASE_DIR / "final_lab" / "eda_report" / "assets"
 SLIDES_ASSETS = BASE_DIR / "final_lab" / "slides" / "assets"
 

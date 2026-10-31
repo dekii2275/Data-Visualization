@@ -2,6 +2,19 @@
 
 Dashboard mô phỏng giao thông TP.HCM, có hai cách chạy: HTTP server phục vụ JSON tĩnh hoặc Nginx + FastAPI + PostgreSQL qua Docker Compose. Các kịch bản What-If là mô phỏng minh họa; dữ liệu không phải luồng cảm biến trực tiếp.
 
+## Dòng xe 24 giờ
+
+Màn hình mặc định tập trung vào xe chuyển động trên các đoạn đường có dữ liệu, mở đầu tại cụm Lý Thường Kiệt – Quận 10. Có thể đổi sang trục Cộng Hòa, Gò Vấp hoặc Quận 12, rồi chọn từng tuyến để xem gần hơn. Bản đồ tự lấy phạm vi từ hình học của các đoạn đã chọn.
+
+- Nút phát/tạm dừng điều khiển cả xe và timeline. Chu kỳ chạy từ 00:00 đến 23:30 rồi lặp lại; có thể kéo đến một giờ bất kỳ.
+- Các mức 1x/2x/4x điều khiển tốc độ phát ngày; vận tốc xe minh họa vẫn phụ thuộc LOS tại giờ đang chọn. Ở 1x, một ngày hoàn chỉnh mất khoảng 115 giây.
+- Tốc độ và khoảng cách xe được quy ước theo LOS A–F. Xe lặp trên từng đoạn; không suy luận hành trình xuyên mạng đường, số lượng xe thực, chiều lưu thông hay lưu lượng từ dữ liệu LOS.
+- Chỉ số chỉ tính trên các đoạn đang được chọn. Tốc độ mô phỏng là trung bình theo chiều dài hình học, không phải vận tốc cảm biến.
+- Trình duyệt có tùy chọn giảm chuyển động sẽ khởi đầu tạm dừng; người xem có thể chủ động bấm phát. Tab ẩn tạm ngưng cả đồng hồ và vẽ xe.
+- “Công cụ khác” mở lại các bảng phân tích, chính sách và định tuyến.
+
+`flow-model.js` chứa hình học và quy tắc dữ liệu; `vehicle-flow.js` vẽ xe bằng một canvas; `config.js` tập trung phạm vi khu vực, tốc độ, khoảng cách và thời gian phát. Các vị trí ngoài vùng đã chọn không được dựng thành xe giả trên đường không có dữ liệu.
+
 ## Cấu trúc mã nguồn
 
 - `index.html`, `style.css`: markup và CSS, dùng chung cho static và Docker.
@@ -85,7 +98,7 @@ Từ thư mục gốc repository:
 ```bash
 python -m pip install -r requirements-dev.txt
 python -m pytest -q
-node --test tests/test_data_client.cjs
+node --test tests/*.cjs
 ruff check .
 ruff format --check .
 ```

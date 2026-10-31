@@ -9,7 +9,7 @@ COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 # Copy frontend assets
 COPY index.html /usr/share/nginx/html/
 COPY style.css /usr/share/nginx/html/
-COPY config.js data.js app.js /usr/share/nginx/html/
+COPY config.js data.js flow-model.js vehicle-flow.js app.js /usr/share/nginx/html/
 COPY traffic_data.json /usr/share/nginx/html/
 
 EXPOSE 80

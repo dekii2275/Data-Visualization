@@ -1380,3 +1380,149 @@ input:checked + .slider:before {
   color: #06b6d4;
   border-color: rgba(6, 182, 212, 0.4);
 }
+
+/* Focused daily flow: the road network is the primary working surface. */
+:root {
+  --flow-toolbar-bg: #101a2b;
+  --flow-caption-bg: #101a2b;
+  --flow-free: #10b981;
+  --flow-slow: #f59e0b;
+  --flow-congested: #ef4444;
+  --flow-gridlock: #a855f7;
+}
+
+.vehicle-flow-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 450;
+}
+
+[hidden] { display: none !important; }
+
+.flow-toolbar,
+.flow-caption,
+.flow-empty { display: none; }
+
+.flow-view .ioc-main-grid { grid-template-columns: minmax(0, 1fr); }
+.flow-view .panel-left,
+.flow-view .panel-right,
+.flow-view .brand-badge,
+.flow-view .header-status-pill,
+.flow-view .system-metric,
+.flow-view #btn-open-simulation,
+.flow-view #btn-open-routing,
+.flow-view .map-floating-overlay { display: none; }
+
+.flow-view .brand-text h1 {
+  font-size: 21px;
+  letter-spacing: normal;
+}
+
+.flow-view .brand-sub { font-size: 13px; }
+.flow-view .header-actions { gap: 12px; }
+.flow-view .panel-center { display: flex; flex-direction: column; min-width: 0; }
+.flow-view .map-view { flex: 1; min-height: 0; height: auto; }
+
+.flow-view .flow-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 16px 24px;
+  background: var(--flow-toolbar-bg);
+  border-bottom: 1px solid var(--border-subtle);
+  z-index: 600;
+  flex-shrink: 0;
+}
+
+.flow-selectors { display: flex; align-items: flex-end; gap: 12px; min-width: 0; }
+.flow-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.flow-field label { color: var(--text-secondary); font-size: 13px; }
+.flow-field select { min-height: 40px; width: 205px; max-width: 100%; font-size: 14px; }
+.flow-road-field select { width: 245px; }
+#btn-flow-reset { min-height: 40px; white-space: nowrap; }
+.flow-metrics { display: flex; gap: 28px; flex-shrink: 0; }
+.flow-metrics dt { font-size: 12px; color: var(--text-secondary); margin-bottom: 5px; }
+.flow-metrics dd { font-size: 24px; font-weight: 600; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.flow-unit { font-size: 13px; font-weight: 400; color: var(--text-secondary); }
+.flow-view .flow-caption {
+  display: block;
+  position: absolute;
+  bottom: 27px;
+  left: 64px;
+  max-width: min(580px, calc(100% - 90px));
+  z-index: 600;
+  padding: 12px 16px;
+  background: var(--flow-caption-bg);
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+}
+.flow-caption-row { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
+.flow-legend-item { display: inline-flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13px; }
+.flow-swatch { width: 15px; height: 5px; border-radius: 2px; display: inline-block; }
+.flow-swatch-free { background: var(--flow-free); }
+.flow-swatch-slow { background: var(--flow-slow); }
+.flow-swatch-congested { background: var(--flow-congested); }
+.flow-swatch-gridlock { background: var(--flow-gridlock); }
+.flow-method { margin-top: 9px; color: var(--text-secondary); font-size: 12px; line-height: 1.6; }
+.flow-method summary { cursor: pointer; }
+.flow-method p { margin-top: 8px; max-width: 65ch; }
+.flow-view .flow-empty:not([hidden]) { display: block; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 320px; padding: 20px; z-index: 600; background: var(--bg-panel); border-radius: 8px; }
+.flow-playback-state { font-size: 12px; color: var(--text-secondary); }
+.flow-view .time-display { gap: 3px; }
+.flow-view .ioc-timeline-footer { height: 104px; padding: 12px 24px; gap: 24px; }
+.flow-view .timeline-controls { min-width: 195px; }
+.flow-view .time-clock { font-variant-numeric: tabular-nums; }
+.flow-view .segment-modal { top: 112px; bottom: auto; }
+.flow-view .modal-callout { display: none; }
+.flow-view .leaflet-control-attribution { font-size: 10px; }
+.flow-view .live-pill { white-space: nowrap; }
+
+@media (max-width: 1200px) {
+  .flow-view .flow-toolbar { align-items: stretch; flex-wrap: wrap; gap: 16px; }
+  .flow-metrics { gap: 24px; margin-left: auto; }
+  .flow-view .flow-toolbar { padding: 12px 18px; }
+  .flow-selectors { flex: 1; }
+  .flow-field select { width: 180px; }
+  .flow-road-field select { width: 205px; }
+  .flow-view .brand-sub { max-width: 48vw; overflow: hidden; text-overflow: ellipsis; }
+}
+
+@media (max-width: 800px) {
+  .flow-view .ioc-header { height: 64px; padding: 0 14px; gap: 10px; }
+  .flow-view .brand-text h1 { font-size: 18px; }
+  .flow-view .brand-sub,
+  .flow-view #backend-status-pill,
+  .flow-view #btn-toggle-fullscreen { display: none; }
+  .flow-view .header-actions { gap: 0; }
+  #btn-toggle-tools { font-size: 12px; padding: 9px 12px; }
+  .flow-view .flow-toolbar { gap: 12px; padding: 12px 14px; }
+  .flow-selectors { width: 100%; gap: 8px; }
+  .flow-field { flex: 1; }
+  .flow-field select,
+  .flow-road-field select { width: 100%; font-size: 13px; }
+  .flow-view #btn-flow-reset { display: none; }
+  .flow-metrics { width: 100%; justify-content: space-between; gap: 12px; margin: 0; }
+  .flow-metrics dd { font-size: 20px; }
+  .flow-metrics dt { font-size: 11px; }
+  .flow-view .flow-caption { left: 54px; bottom: 22px; padding: 9px 11px; max-width: calc(100% - 68px); }
+  .flow-caption-row { gap: 10px; }
+  .flow-legend-item { font-size: 11px; gap: 4px; }
+  .flow-method { font-size: 11px; }
+  .flow-view .ioc-timeline-footer { height: auto; min-height: 150px; padding: 12px 14px; gap: 12px; flex-wrap: wrap; }
+  .flow-view .timeline-controls { min-width: 0; order: 0; }
+  .flow-view .speed-controls { order: 1; margin-left: auto; }
+  .flow-view .slider-wrapper { order: 2; flex: 0 0 100%; }
+  .flow-view .timeline-peak-bands { display: none; }
+  .flow-view .band { font-size: 11px; }
+  .flow-view .timeline-ticks { font-size: 11px; }
+  .flow-view .segment-modal { top: 145px; left: 12px; width: min(340px, calc(100% - 24px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}

@@ -15,7 +15,7 @@ import seaborn as sns
 
 # Cấu hình đường dẫn
 BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "data"
+DATA_DIR = BASE_DIR / "data" / "raw"
 REPORT_ASSETS = BASE_DIR / "eda_report" / "assets"
 SLIDES_ASSETS = BASE_DIR / "slides" / "assets"
 DEMO_DIR = BASE_DIR / "demo"

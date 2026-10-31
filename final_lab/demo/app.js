@@ -6,19 +6,23 @@
 // Global Application State
 const state = {
   data: null,
-  currentHour: 17.5, // Default to evening peak 17:30
+  currentHour: FLOW_CONFIG.initialHour,
   isPlaying: false,
   playSpeed: 1, // 1x, 2x, 4x
   playInterval: null,
   map: null,
+  flowLayer: null,
+  flowView: true,
+  flowArea: FLOW_CONFIG.defaultArea,
+  flowRoad: '',
   segmentLayers: [],
   hotspotLayers: [],
   selectedSegment: null,
   filterType: 'all',
   filterOnlySevere: false,
   simPolicies: {
-    adaptive: true,
-    tidal: true,
+    adaptive: false,
+    tidal: false,
     noLeft: false
   },
   activeTab: 'policy', // 'policy' | 'routing'
@@ -35,14 +39,6 @@ const state = {
   }
 };
 
-const LOS_CONFIG = {
-  'A': { color: '#10b981', label: 'LOS A - Thông suốt', speed: 42 },
-  'B': { color: '#06b6d4', label: 'LOS B - Ổn định', speed: 32 },
-  'C': { color: '#f59e0b', label: 'LOS C - Chậm vừa', speed: 22 },
-  'D': { color: '#f97316', label: 'LOS D - Tiệm cận bão hòa', speed: 15 },
-  'E': { color: '#ef4444', label: 'LOS E - Kẹt xe nghiêm trọng', speed: 8 },
-  'F': { color: '#a855f7', label: 'LOS F - Tê liệt hoàn toàn (Gridlock)', speed: 3 }
-};
 
 // ==========================================================================
 // INITIALIZATION
@@ -51,36 +47,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   console.log('[IOC] Initializing HCMC Traffic Intelligence System...');
   initMap();
   setupEventListeners();
-  if (await loadTrafficData()) updateDashboard(state.currentHour);
+  if (await loadTrafficData()) {
+    setupFlowControls();
+    focusFlowArea();
+    updateDashboard(state.currentHour);
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) togglePlay();
+  }
 });
 
 // ==========================================================================
 // MAP INITIALIZATION (Real World Map Tiles)
 // ==========================================================================
-const BASEMAPS = {
-  osm: {
-    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    options: {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }
-  },
-  satellite: {
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    options: {
-      maxZoom: 19,
-      attribution: 'Tiles &copy; Esri &mdash; World Imagery'
-    }
-  },
-  dark: {
-    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    options: {
-      maxZoom: 19,
-      className: 'osm-dark-tiles',
-      attribution: '&copy; OpenStreetMap'
-    }
-  }
-};
 
 function setBasemap(type) {
   if (state.basemapLayer) {
@@ -96,9 +73,14 @@ function initMap() {
   // Center on District 10 / Tan Binh / Central HCMC
   state.map = L.map('traffic-map', {
     center: [10.7765, 106.6620],
-    zoom: 13,
+    zoom: 15,
+    zoomSnap: 0.25,
+    minZoom: FLOW_CONFIG.minimumZoom,
+    maxZoom: FLOW_CONFIG.maximumZoom,
+    maxBoundsViscosity: 0.9,
     zoomControl: false,
-    attributionControl: false
+    attributionControl: true,
+    preferCanvas: true
   });
 
   // Default to Real OpenStreetMap (Đường phố thực tế TP.HCM)
@@ -106,6 +88,8 @@ function initMap() {
 
   // Zoom control in bottom left
   L.control.zoom({ position: 'bottomleft' }).addTo(state.map);
+  state.flowLayer = new VehicleFlowLayer(state.map);
+  window.addEventListener('pagehide', () => state.flowLayer.destroy());
 }
 
 // ==========================================================================
@@ -118,7 +102,7 @@ async function loadTrafficData() {
     const result = await TrafficDataClient.load();
     state.data = result.data;
     if (statusPill) {
-      statusPill.textContent = result.live ? 'API DOCKER LIVE' : 'LOCAL STANDALONE';
+      statusPill.textContent = 'Dữ liệu lịch sử';
       statusPill.classList.toggle('status-live', result.live);
       statusPill.classList.toggle('status-local', !result.live);
     }
@@ -138,53 +122,124 @@ async function loadTrafficData() {
 // ==========================================================================
 // RENDER MAP LAYERS
 // ==========================================================================
+/** Return data geometry selected by the current area, road and optional legacy filters. */
+function getVisibleSegments() {
+  if (!state.data) return [];
+  const area = FLOW_CONFIG.areas.find(item => item.id === state.flowArea);
+  const selected = state.flowView
+    ? FlowModel.selectSegments(state.data.segments, area, state.flowRoad)
+    : state.data.segments;
+  return selected.filter(segment => (state.filterType === 'all' || segment.type === state.filterType) &&
+    (!state.filterOnlySevere || ['E', 'F'].includes(FlowModel.losAt(segment, state.currentHour))));
+}
+
+/** Render data roads beneath the vehicle stream; policy changes only apply in detailed mode. */
 function renderSegments() {
-  if (!state.data || !state.data.segments) return;
-
-  // Clear existing
-  state.segmentLayers.forEach(l => state.map.removeLayer(l));
+  if (!state.data) return;
+  state.segmentLayers.forEach(layer => state.map.removeLayer(layer));
   state.segmentLayers = [];
-
-  const hourInt = Math.floor(state.currentHour);
-
-  state.data.segments.forEach(seg => {
-    // Determine LOS for current hour
-    let currentLos = seg.hourly_los ? seg.hourly_los[hourInt] : seg.dominant_los;
-
-    // If simulation active on Ly Thuong Kiet / To Hien Thanh, improve LOS
-    if (state.simPolicies.adaptive && (seg.name.includes('Lý Thường Kiệt') || seg.name.includes('Tô Hiến Thành'))) {
-      if (currentLos === 'F') currentLos = 'D';
-      else if (currentLos === 'E') currentLos = 'C';
-      else if (currentLos === 'D') currentLos = 'B';
+  const segments = getVisibleSegments();
+  segments.forEach(segment => {
+    let los = FlowModel.losAt(segment, state.currentHour);
+    if (!state.flowView && state.simPolicies.adaptive &&
+        (segment.name.includes('Lý Thường Kiệt') || segment.name.includes('Tô Hiến Thành'))) {
+      los = ({ F: 'D', E: 'C', D: 'B' })[los] || los;
     }
-
-    const losConf = LOS_CONFIG[currentLos] || LOS_CONFIG['A'];
-    const isSevere = currentLos === 'E' || currentLos === 'F';
-
-    // Filters
-    if (state.filterType !== 'all' && seg.type !== state.filterType) return;
-    if (state.filterOnlySevere && !isSevere) return;
-
-    const polyline = L.polyline(seg.coords, {
-      color: losConf.color,
-      weight: isSevere ? 4.5 : 3.2,
-      opacity: isSevere ? 0.95 : 0.75,
-      className: isSevere ? 'congested-line' : 'normal-line'
+    const profile = LOS_CONFIG[los];
+    const line = L.polyline(segment.coords, {
+      color: state.flowView ? '#536277' : profile.color,
+      weight: state.flowView ? 6 : 4,
+      opacity: state.flowView ? 0.55 : 0.8
     });
+    line.bindTooltip(`<strong>${segment.name}</strong><br/>${profile.label} · tốc độ mô phỏng ${profile.speed} km/h`, { sticky: true });
+    line.on('click', () => openSegmentModal(segment, los));
+    line.addTo(state.map);
+    state.segmentLayers.push(line);
+  });
+  state.flowLayer.setSegments(segments, state.currentHour);
+  updateFlowSummary(segments);
+}
 
-    // Tooltip hover
-    polyline.bindTooltip(`<strong>${seg.name}</strong><br/>${losConf.label}`, {
-      sticky: true,
-      direction: 'top'
-    });
+/** Update scoped metrics from visible segments rather than city-wide observation percentages. */
+function updateFlowSummary(segments) {
+  const summary = FlowModel.summarize(segments, state.currentHour);
+  document.getElementById('flow-segment-count').textContent = summary.count;
+  document.getElementById('flow-severe-count').textContent = `${summary.severePct.toFixed(0)}%`;
+  document.getElementById('flow-speed').textContent = summary.speed.toFixed(1);
+  document.getElementById('flow-empty').hidden = summary.count !== 0;
+}
 
-    // Click to open detailed modal
-    polyline.on('click', () => {
-      openSegmentModal(seg, currentLos);
-    });
+/** Fit only existing road geometry and constrain panning to the chosen neighborhood. */
+function focusFlowArea() {
+  const area = FLOW_CONFIG.areas.find(item => item.id === state.flowArea);
+  const segments = getVisibleSegments();
+  state.map.invalidateSize();
+  state.map.setMaxBounds(null);
+  const bounds = segments.length ? L.latLngBounds(segments.flatMap(segment => segment.coords)) : L.latLngBounds(area.bounds);
+  // Remove the previous area's zoom floor before calculating a smaller viewport fit.
+  state.map.setMinZoom(0);
+  const fitZoom = state.map.getBoundsZoom(bounds.pad(0.08), false, L.point(64, 64));
+  state.map.setMinZoom(Math.min(FLOW_CONFIG.minimumZoom, fitZoom));
+  state.map.fitBounds(bounds.pad(0.08), { padding: [32, 32], maxZoom: state.flowRoad ? 17 : 16, animate: false });
+  // Bounds include the displayed viewport so landscape/mobile fitting cannot fight the pan constraint.
+  state.map.setMaxBounds(state.map.getBounds().extend(L.latLngBounds(area.bounds)).pad(0.12));
+}
 
-    polyline.addTo(state.map);
-    state.segmentLayers.push(polyline);
+/** Populate only road names with valid data inside the selected neighborhood. */
+function populateFlowRoads() {
+  const area = FLOW_CONFIG.areas.find(item => item.id === state.flowArea);
+  const select = document.getElementById('flow-road-select');
+  const roads = [...new Set(FlowModel.selectSegments(state.data.segments, area).map(segment => segment.name))].sort((a, b) => a.localeCompare(b, 'vi'));
+  select.replaceChildren(new Option('Tất cả đường có dữ liệu', ''));
+  roads.forEach(road => select.add(new Option(road, road)));
+  select.value = state.flowRoad;
+}
+
+/** Set up one focused traffic surface while keeping the existing tools available on demand. */
+function setupFlowControls() {
+  const areaSelect = document.getElementById('flow-area-select');
+  FLOW_CONFIG.areas.forEach(area => areaSelect.add(new Option(area.name, area.id)));
+  areaSelect.value = state.flowArea;
+  populateFlowRoads();
+  areaSelect.addEventListener('change', () => {
+    state.flowArea = areaSelect.value;
+    state.flowRoad = '';
+    closeSegmentModal();
+    populateFlowRoads();
+    renderSegments();
+    focusFlowArea();
+  });
+  document.getElementById('flow-road-select').addEventListener('change', event => {
+    state.flowRoad = event.target.value;
+    closeSegmentModal();
+    renderSegments();
+    focusFlowArea();
+  });
+  document.getElementById('btn-flow-reset').addEventListener('click', focusFlowArea);
+  document.getElementById('btn-toggle-tools').addEventListener('click', () => {
+    state.flowView = !state.flowView;
+    document.body.classList.toggle('flow-view', state.flowView);
+    const button = document.getElementById('btn-toggle-tools');
+    button.textContent = state.flowView ? 'Công cụ khác' : 'Về dòng xe 24 giờ';
+    button.setAttribute('aria-expanded', String(!state.flowView));
+    state.flowLayer.setEnabled(state.flowView);
+    state.map.setMaxBounds(null);
+    state.map.setMinZoom(state.flowView ? FLOW_CONFIG.minimumZoom : 10);
+    clearRoutingLayers();
+    stopVehicleSimulation();
+    state.filterType = 'all';
+    state.filterOnlySevere = false;
+    document.getElementById('street-type-filter').value = 'all';
+    document.getElementById('chk-only-severe').checked = false;
+    state.map.invalidateSize();
+    renderHotspots();
+    renderSegments();
+    if (state.flowView) focusFlowArea();
+    else switchTab(state.activeTab);
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) clearInterval(state.playInterval);
+    else if (state.isPlaying) startPlayback();
   });
 }
 
@@ -193,6 +248,7 @@ function renderHotspots() {
 
   state.hotspotLayers.forEach(l => state.map.removeLayer(l));
   state.hotspotLayers = [];
+  if (state.flowView) return;
 
   state.data.hotspots.forEach(hp => {
     // Custom Pulsing DivIcon
@@ -499,10 +555,15 @@ function togglePlay() {
     icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
     clearInterval(state.playInterval);
   }
+  state.flowLayer.setRunning(state.isPlaying);
+  document.getElementById('btn-play-pause').setAttribute('aria-label', state.isPlaying ? 'Tạm dừng dòng xe và thời gian' : 'Phát dòng xe và chu kỳ 24 giờ');
+  document.getElementById('btn-play-pause').setAttribute('aria-pressed', String(state.isPlaying));
+  document.getElementById('flow-playback-state').textContent = state.isPlaying ? 'Đang phát · lặp 24 giờ' : 'Đã tạm dừng';
 }
 
 function startPlayback() {
-  const intervalMs = 1200 / state.playSpeed;
+  clearInterval(state.playInterval);
+  const intervalMs = FLOW_CONFIG.halfHourDurationMs / state.playSpeed;
   state.playInterval = setInterval(() => {
     state.currentHour += 0.5;
     if (state.currentHour > 23.5) {
@@ -579,7 +640,7 @@ function switchTab(tabName) {
     if (btnPolicy) btnPolicy.classList.remove('active');
     if (btnRouting) btnRouting.classList.add('active');
     if (panePolicy) panePolicy.style.display = 'none';
-    if (paneRouting) paneRouting.style.display = 'block';
+    if (paneRouting) paneRouting.style.display = 'flex';
     if (title) title.textContent = 'ĐỊNH TUYẾN THÍCH ỨNG AI';
     if (badge) badge.textContent = 'AI DYNAMIC ROUTING';
 
@@ -587,7 +648,7 @@ function switchTab(tabName) {
   } else {
     if (btnPolicy) btnPolicy.classList.add('active');
     if (btnRouting) btnRouting.classList.remove('active');
-    if (panePolicy) panePolicy.style.display = 'block';
+    if (panePolicy) panePolicy.style.display = 'flex';
     if (paneRouting) paneRouting.style.display = 'none';
     if (title) title.textContent = 'MÔ PHỎNG GIẢI PHÁP CAN THIỆP';
     if (badge) badge.textContent = 'TƯ VẤN SỞ GTVT';

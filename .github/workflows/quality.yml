@@ -16,6 +16,7 @@ jobs:
       - run: ruff check .
       - run: ruff format --check .
       - run: python -m pytest -q
-      - run: node --check final_lab/demo/app.js
-      - run: node --test tests/test_data_client.cjs
+      - run: python scripts/validate_data.py
+      - run: for file in final_lab/demo/*.js; do node --check "$file"; done
+      - run: node --test tests/*.cjs
       - run: docker compose -f final_lab/demo/docker-compose.yml config --quiet
