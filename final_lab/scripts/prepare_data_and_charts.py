@@ -58,9 +58,15 @@ def load_and_preprocess() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     # Clean street type
     valid_types = ["trunk", "primary", "secondary", "tertiary", "unclassified", "residential"]
     train_df["street_type_clean"] = train_df["street_type"].apply(
-        lambda x: x
-        if x in valid_types
-        else ("primary" if "primary" in str(x) else ("trunk" if "trunk" in str(x) else "secondary"))
+        lambda x: (
+            x
+            if x in valid_types
+            else (
+                "primary"
+                if "primary" in str(x)
+                else ("trunk" if "trunk" in str(x) else "secondary")
+            )
+        )
     )
 
     # Time features

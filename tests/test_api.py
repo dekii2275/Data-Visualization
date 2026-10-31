@@ -39,7 +39,7 @@ def client(monkeypatch):
 
 
 def test_full_data_preserves_source(client):
-    source = FullTrafficDataResponse.model_validate_json(DATA_PATH.read_text())
+    source = FullTrafficDataResponse.model_validate_json(DATA_PATH.read_text(encoding="utf-8"))
     response = client.get("/api/traffic/data")
     assert response.status_code == 200
     actual = FullTrafficDataResponse.model_validate(response.json())
@@ -57,7 +57,7 @@ def test_full_data_preserves_source(client):
 
 @pytest.mark.parametrize("hour", [None, 0, 17, 23])
 def test_severe_filter(client, hour):
-    source = json.loads(DATA_PATH.read_text())["segments"]
+    source = json.loads(DATA_PATH.read_text(encoding="utf-8"))["segments"]
     params = {"only_severe": "true"}
     if hour is not None:
         params["hour"] = hour
